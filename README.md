@@ -47,13 +47,13 @@
 
 ## 📸 Screenshots
 
-| Dashboard | Preview |
-|-----------|---------|
-| Admin     | ![](screenshots/Screenshot%202025-11-08%20115526.png)
-| Student   | ![](screenshots/Screenshot%202025-11-08%20120130.png)
-| Kitchen   | ![](screenshots/Screenshot%202025-11-08%201155541.png)
-| Cashier   | ![](screenshots/Screenshot%202025-11-08%20120109.png)
-| Reports/Settings | ![](screenshots/Screenshot%202025-11-08%20120019.png)
+| Dashboard        | Preview                                                      |
+|------------------|-------------------------------------------------------------|
+| Admin            | ![](frontend/screenshots/Screenshot%202025-11-08%20115526.png)       |
+| Student          | ![](frontend/screenshots/Screenshot%202025-11-08%20120130.png)       |
+| Kitchen          | ![](frontend/screenshots/Screenshot%202025-11-08%201155541.png)      |
+| Cashier          | ![](frontend/screenshots/Screenshot%202025-11-08%20120109.png)       |
+| Reports/Settings | ![](frontend/screenshots/Screenshot%202025-11-08%20120019.png)       |
 
 ---
 
@@ -62,7 +62,9 @@
 1. **Clone/Download this repo**
 git clone https://github.com/surajkourav123/Campus-Canteen--Automation-System.git
 cd Campus-Canteen--Automation-System
-2. **Sab kuch `/frontend` folder mein hai**  
+
+text
+2. **Sab kuch `/frontend` folder mein hai**
 3. **Open `index.html` in your browser**
 4. **Login as any role using demo credentials**
 5. **Explore all dashboards, order flows, and features!**
@@ -71,6 +73,7 @@ cd Campus-Canteen--Automation-System
 ---
 
 ## 📑 Project Structure
+
 campus-canteen-automation-system/
 ├── frontend/
 │ ├── index.html
@@ -82,6 +85,8 @@ campus-canteen-automation-system/
 │ ├── scripts/
 │ └── screenshots/
 ├── backend/ (empty for now – future upgrade)
+
+text
 
 ---
 
