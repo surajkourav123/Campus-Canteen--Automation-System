@@ -1,0 +1,110 @@
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px);}
+  to   { opacity: 1; transform: translateY(0);}
+}
+.fade-in { animation: fadeIn 0.7s cubic-bezier(.35,1.4,.25,1) both;}
+.fade-in-delay-1 { animation-delay: 0.1s;}
+.fade-in-delay-2 { animation-delay: 0.2s;}
+.fade-in-delay-3 { animation-delay: 0.3s;}
+.fade-in-delay-4 { animation-delay: 0.4s;}
+
+/* ===== Gradient Text ===== */
+.gradient-text {
+  background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar { width: 8px;}
+::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px;}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #b91c1c 100%);
+}
+
+/* ===== Button & Card Effects ===== */
+button, .btn {
+  transition: transform .16s cubic-bezier(.36,1.4,.24,1), box-shadow .18s;
+  will-change: transform, box-shadow;
+}
+button:hover, .btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 5px 18px -6px #f9731618;
+}
+button:active, .btn:active { transform: none;}
+.card-hover:hover {
+  transform: translateY(-7px) scale(1.03);
+  box-shadow: 0 22px 44px rgba(220,38,38,.12), 0 2px 8px rgba(249,115,22,0.13);
+}
+
+/* ===== Focus/Accessibility ===== */
+input:focus, select:focus, textarea:focus, button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+  background: #fffceb;
+}
+
+/* ===== Loading Spinner ===== */
+.loading {
+  display: inline-block;
+  width: 24px; height: 24px;
+  border: 3px solid rgba(255,255,255,.21);
+  border-radius: 50%;
+  border-top-color: #f97316;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+@keyframes spin {to {transform: rotate(360deg);}}
+
+/* ===== Responsive Tweaks ===== */
+@media (max-width: 990px) {
+  .grid-cols-4, .grid-cols-3 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+@media (max-width: 768px) {
+  .text-6xl, .text-5xl { font-size: 2.2rem !important; }
+  .grid-cols-4, .grid-cols-3 { grid-template-columns: 1fr !important; }
+  .flex-space-x-4 { flex-direction: column; gap:1rem; }
+  nav, .sidebar { padding: 10px !important;}
+}
+
+/* ===== App Bar Shadow & Highlight ===== */
+.sticky-bar, nav {
+  box-shadow: 0 3px 24px -4px #f9731620;
+}
+
+/* ===== Highlight Utility (for temporary states) ===== */
+.highlighted {
+  background: #fff8ed !important;
+  box-shadow: 0 0 0 6px #f9731630;
+  animation: fadeIn .6s;
+}
+
+/* ===== Animation for Modal Open ===== */
+.modal-bg.fade-in { animation: fadeIn .5s cubic-bezier(.36,1.4,.24,1) both;}
+
+/* ===== Smooth List (e.g. Category Tabs) ===== */
+.category-tab {
+  transition: background .18s, color .18s;
+  font-weight: 600;
+}
+.category-tab.active {
+  background: linear-gradient(90deg,#ffaa23 0%,#ff6347 80%);
+  color: #fff;
+  box-shadow: 0 3px 18px #ffaa2355;
+}
+
+/* ===== General Hover Highlights ===== */
+.hover-glow:hover {
+  background: #f97316 !important;
+  color: #fff !important;
+  box-shadow: 0 0 16px 2px #f9731644;
+}

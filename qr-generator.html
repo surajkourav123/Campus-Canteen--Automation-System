@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Code Generator | Campus Canteen</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #ffaa23;
+      margin-bottom: 1rem;
+    }
+    .input-group {
+      margin: 20px 0;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border 0.3s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #ffaa23;
+    }
+    button {
+      background: #ffaa23;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #ff8552;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255,170,35,0.4);
+    }
+    #qrcode {
+      margin: 30px auto;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 12px;
+      display: inline-block;
+    }
+    .qr-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .qr-actions button {
+      flex: 1;
+      max-width: 150px;
+    }
+    .hidden {display: none;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍽️ QR Code Generator</h1>
+    <p style="color: #666; margin-bottom: 20px;">Generate QR codes for table-based ordering</p>
+    
+    <div class="input-group">
+      <label for="tableNumber">Table Number</label>
+      <input type="number" id="tableNumber" placeholder="Enter table number (e.g., 5)" min="1" max="50">
+    </div>
+    
+    <div class="input-group">
+      <label for="location">Location</label>
+      <select id="location">
+        <option value="main-hall">Main Hall</option>
+        <option value="terrace">Terrace</option>
+        <option value="outdoor">Outdoor</option>
+      </select>
+    </div>
+    
+    <button onclick="generateQR()">🎯 Generate QR Code</button>
+    
+    <div id="qrContainer" class="hidden">
+      <div id="qrcode"></div>
+      <p style="font-weight: 600; color: #333; margin-top: 10px;">
+        Table <span id="tableInfo"></span>
+      </p>
+      <div class="qr-actions">
+        <button onclick="downloadQR()">📥 Download</button>
+        <button onclick="printQR()">🖨️ Print</button>
+        <button onclick="resetQR()" style="background: #dc2626;">🔄 Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let qrCodeInstance = null;
+    
+    function generateQR() {
+      const tableNum = document.getElementById('tableNumber').value;
+      const location = document.getElementById('location').value;
+      
+      if (!tableNum) {
+        alert('Please enter a table number!');
+        return;
+      }
+      
+      // Clear previous QR
+      document.getElementById('qrcode').innerHTML = '';
+      
+      // Generate menu URL with table info
+      const baseURL = window.location.origin;
+      const qrURL = `${baseURL}/menu.html?table=${tableNum}&location=${location}`;
+      
+      // Create QR Code
+      qrCodeInstance = new QRCode(document.getElementById("qrcode"), {
+        text: qrURL,
+        width: 256,
+        height: 256,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      
+      // Show QR container
+      document.getElementById('qrContainer').classList.remove('hidden');
+      document.getElementById('tableInfo').textContent = `#${tableNum} - ${location.replace('-', ' ').toUpperCase()}`;
+    }
+    
+    function downloadQR() {
+      const canvas = document.querySelector('#qrcode canvas');
+      if (!canvas) return;
+      
+      const tableNum = document.getElementById('tableNumber').value;
+      const link = document.createElement('a');
+      link.download = `Table-${tableNum}-QR.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      
+      alert('QR Code downloaded! ✅');
+    }
+    
+    function printQR() {
+      window.print();
+    }
+    
+    function resetQR() {
+      document.getElementById('tableNumber').value = '';
+      document.getElementById('qrContainer').classList.add('hidden');
+      document.getElementById('qrcode').innerHTML = '';
+    }
+  </script>
+</body>
+</html>

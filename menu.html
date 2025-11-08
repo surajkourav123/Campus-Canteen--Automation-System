@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Campus Canteen Menu | PIEMR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-primary: #fff7ed;
+      --bg-card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --accent: #f97316;
+      --accent-hover: #ea580c;
+      --accent-light: #fed7aa;
+    }
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-card: #2d2d2d;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #fb923c;
+      --accent-hover: #f97316;
+      --accent-light: #7c2d12;
+    }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .gradient-text { 
+      background: linear-gradient(135deg, #f97316 0%, #dc2626 100%); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      background-clip: text; 
+    }
+    
+    /* iOS/SWIGGY STYLE ANIMATION */
+    @keyframes iosEntry {
+      0% { opacity: 0; transform: translateY(30px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .menu-card {
+      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background: var(--bg-card);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      animation: iosEntry 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    .menu-card:nth-child(1) { animation-delay: 0.03s; }
+    .menu-card:nth-child(2) { animation-delay: 0.06s; }
+    .menu-card:nth-child(3) { animation-delay: 0.09s; }
+    .menu-card:nth-child(4) { animation-delay: 0.12s; }
+    .menu-card:nth-child(5) { animation-delay: 0.15s; }
+    .menu-card:nth-child(6) { animation-delay: 0.18s; }
+    
+    .menu-card:hover { 
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 12px 24px rgba(249, 115, 22, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+      border-color: rgba(249, 115, 22, 0.2);
+    }
+    
+    .category-tab {
+      transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+    }
+    .category-tab.active { 
+      background: linear-gradient(90deg, #f97316 0%, #dc2626 100%); 
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+      transform: scale(1.03);
+    }
+    
+    /* Theme Toggle - REMOVED (moved to settings panel) */
+    .theme-toggle:hover { transform: scale(1.1); }
+    .theme-toggle.active { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+    .theme-toggle::before {
+      content: '☀️';
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    .theme-toggle.active::before {
+      content: '🌙';
+      left: 32px;
+    }
+    
+    /* Settings Button - Fixed positioning */
+    .settings-btn {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 40;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+      color: white;
+      font-size: 1.6rem;
+    }
+    .settings-btn:hover { 
+      transform: scale(1.15) rotate(180deg); 
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.6);
+    }
+    
+    /* Button Animations */
+    .btn-action {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-action:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Cart Badge Pulse */
+    @keyframes pulse-orange {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+      50% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
+    }
+    .cart-badge { animation: pulse-orange 2s infinite; }
+    
+    /* Modal Animations */
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Settings Panel - iOS Ultra smooth */
+    .settings-panel {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: 420px;
+      background: var(--bg-card);
+      box-shadow: -20px 0 60px rgba(0, 0, 0, 0.3);
+      transform: translateX(100%);
+      transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 100000;
+      overflow-y: auto;
+      backdrop-filter: blur(20px);
+    }
+    .settings-panel.active { 
+      transform: translateX(0);
+      animation: slideInRight 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    
+    @keyframes slideInRight {
+      0% { transform: translateX(100%); opacity: 0.8; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+    
+    [data-theme="dark"] .settings-panel {
+      background: rgba(45, 45, 45, 0.98);
+      backdrop-filter: blur(30px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .setting-option {
+      padding: 1.25rem 1.5rem;
+      margin: 0.5rem 1rem;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(249, 115, 22, 0.03);
+      border: 1px solid rgba(249, 115, 22, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .setting-option::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.1), transparent);
+      transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .setting-option:hover::before {
+      left: 100%;
+    }
+    .setting-option:hover {
+      background: rgba(249, 115, 22, 0.08);
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.15);
+      border-color: rgba(249, 115, 22, 0.2);
+    }
+    .setting-option:active {
+      transform: scale(0.98);
+    }
+    .setting-option .icon {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .setting-option:hover .icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+    
+    [data-theme="dark"] .setting-option {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    [data-theme="dark"] .setting-option:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(249, 115, 22, 0.3);
+    }
+    
+    /* Toggle Switch */
+    .toggle-switch {
+      width: 50px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .toggle-switch.active { background: #f97316; }
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: 0.3s;
+    }
+    .toggle-switch.active::before { left: 28px; }
+    
+    /* DARK MODE FIX */
+    [data-theme="dark"] nav {
+      background: #2d2d2d;
+      border-bottom: 1px solid #3d3d3d;
+    }
+    [data-theme="dark"] nav button,
+    [data-theme="dark"] nav .gradient-text {
+      color: #f1f5f9 !important;
+    }
+    [data-theme="dark"] .menu-card {
+      background: #2d2d2d;
+      border-color: #3d3d3d;
+      color: #f1f5f9 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    [data-theme="dark"] .menu-card h3,
+    [data-theme="dark"] .menu-card p {
+      color: #f1f5f9 !important;
+    }
+    [data-theme="dark"] .settings-panel {
+      background: #2d2d2d;
+      color: #f1f5f9;
+    }
+    [data-theme="dark"] .setting-option {
+      border-color: #3d3d3d;
+      color: #f1f5f9;
+    }
+    [data-theme="dark"] .text-gray-500 {
+      color: #94a3b8 !important;
+    }
+    [data-theme="dark"] #cartSidebar,
+    [data-theme="dark"] #orderHistory {
+      background: #2d2d2d;
+      color: #f1f5f9 !important;
+    }
+    [data-theme="dark"] #paymentModal .bg-white,
+    [data-theme="dark"] #confirmationModal .bg-white {
+      background: #2d2d2d !important;
+      color: #f1f5f9 !important;
+    }
+  </style>
+</head>
+<body data-theme="light">
+  
+  <nav class="bg-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
+      <div class="text-2xl font-bold gradient-text flex items-center gap-2">
+        <img src="piemr-logo.jpg" class="w-10 h-10 rounded-full border-2 border-orange-500" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%2220%22 fill=%22%23f97316%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22%3EP%3C/text%3E%3C/svg%3E'"/> 
+        Campus Canteen
+      </div>
+      <div class="flex items-center space-x-4">
+        <input type="text" id="menuSearch" placeholder="🔍 Search menu..." class="hidden md:block px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 w-64">
+        <button onclick="toggleSettings()" class="text-gray-700 hover:text-orange-600 font-medium transition">⚙️ Settings</button>
+        <button onclick="toggleOrderHistory()" class="text-gray-700 hover:text-orange-600 font-medium transition">📦 Orders</button>
+        <button onclick="toggleCart()" class="relative bg-gradient-to-r from-orange-500 to-red-600 text-white px-4 py-2 rounded-lg font-semibold btn-action">
+          🛒 Cart 
+          <span id="cartCount" class="cart-badge ml-1 bg-white text-orange-600 rounded-full px-2 text-xs font-bold">0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="max-w-7xl mx-auto py-8 px-4">
+    <div class="flex flex-wrap gap-3 mb-8 justify-center" id="categoryTabs"></div>
+    <div id="menuGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+  </div>
+  
+  <!-- Cart Sidebar -->
+  <div id="cartSidebar" class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
+    <div class="h-full flex flex-col">
+      <div class="bg-gradient-to-r from-orange-500 to-red-600 text-white p-6 flex justify-between items-center">
+        <h2 class="text-2xl font-bold">🛒 Cart</h2>
+        <button onclick="toggleCart()" class="text-white font-bold text-2xl hover:scale-110 transition">✖</button>
+      </div>
+      <div id="cartItems" class="flex-1 overflow-y-auto p-6"></div>
+      <div class="border-t p-6 bg-gray-50">
+        <div class="flex justify-between font-bold mb-2"><span>Subtotal:</span><span id="cartSubtotal">₹0</span></div>
+        <div class="flex justify-between text-sm text-gray-600"><span>Tax (5%):</span><span id="cartTax">₹0</span></div>
+        <div class="flex justify-between text-xl font-bold mt-2 text-orange-600"><span>Total:</span><span id="cartTotal">₹0</span></div>
+        <button onclick="proceedToCheckout()" class="btn-action w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 rounded-xl font-bold mt-4">💳 Checkout</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Settings Panel - Redesigned Ultra Level -->
+  <div id="settingsPanel" class="settings-panel">
+    <div class="bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white p-8 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"></div>
+      <div class="relative z-10">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-3xl font-black tracking-tight">⚙️ Settings</h2>
+          <button onclick="toggleSettings()" class="text-white font-bold text-3xl hover:rotate-90 hover:scale-110 transition-all duration-300 active:scale-95">✖</button>
+        </div>
+        <p class="text-purple-100 text-sm font-medium">Customize your experience</p>
+      </div>
+    </div>
+    
+    <div class="p-4 space-y-3">
+      <!-- Dark Mode -->
+      <div class="setting-option" onclick="toggleTheme()">
+        <div class="icon bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">🌙</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Dark Mode</div>
+          <div class="text-sm text-gray-500">Ultra modern theme</div>
+        </div>
+        <div class="toggle-switch" id="darkToggle"></div>
+      </div>
+      
+      <!-- Language -->
+      <div class="setting-option" onclick="toggleLanguage()">
+        <div class="icon bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg">🌍</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Language</div>
+          <div class="text-sm text-gray-500" id="langStatus">English</div>
+        </div>
+        <div class="toggle-switch" id="langToggle"></div>
+      </div>
+      
+      <!-- Notifications -->
+      <div class="setting-option" onclick="toggleNotifications()">
+        <div class="icon bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">🔔</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Notifications</div>
+          <div class="text-sm text-gray-500">Order updates & alerts</div>
+        </div>
+        <div class="toggle-switch active" id="notifToggle"></div>
+      </div>
+      
+      <!-- View Orders -->
+      <div class="setting-option" onclick="toggleSettings();toggleOrderHistory(true)">
+        <div class="icon bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg">📦</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">My Orders</div>
+          <div class="text-sm text-gray-500">Track order status</div>
+        </div>
+        <div class="text-gray-400 text-xl">→</div>
+      </div>
+      
+      <!-- Clear Cart -->
+      <div class="setting-option" onclick="clearCart()">
+        <div class="icon bg-gradient-to-br from-red-500 to-pink-600 text-white shadow-lg">🗑️</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg text-red-600">Clear Cart</div>
+          <div class="text-sm text-gray-500">Remove all items</div>
+        </div>
+        <div class="text-red-400 text-xl">→</div>
+      </div>
+    </div>
+    
+    <div class="p-6 border-t">
+      <button onclick="logoutFn()" class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden">
+        <span class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-700"></span>
+        <span class="text-2xl relative z-10">🚪</span>
+        <span class="relative z-10">Logout</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full fade-in text-center">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">💳 Payment</h2>
+      <div id="orderSummary" class="bg-gray-50 rounded-xl p-4 mb-6 text-left"></div>
+      <div class="space-y-4">
+        <button onclick="processPayment('online')" class="btn-action w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-xl font-semibold text-lg">💰 Pay Online</button>
+        <button onclick="processPayment('cash')" class="btn-action w-full bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-xl font-semibold text-lg">💵 Pay at Counter</button>
+        <button onclick="closePaymentModal()" class="w-full text-gray-600 hover:text-gray-800 font-medium p-2">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Confirmation Modal -->
+  <div id="confirmationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center fade-in">
+      <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✅</div>
+      <h2 class="text-3xl font-bold text-gray-800 mb-4">Order Placed!</h2>
+      <div id="confirmationDetails" class="mb-6 text-gray-600"></div>
+      <button onclick="closeConfirmationModal()" class="btn-action bg-gradient-to-r from-orange-500 to-red-600 text-white px-8 py-3 rounded-xl font-semibold">📦 Track Order</button>
+    </div>
+  </div>
+  
+  <!-- Order History -->
+  <div id="orderHistory" class="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
+    <div class="h-full flex flex-col">
+      <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 flex justify-between items-center">
+        <h2 class="text-2xl font-bold">📦 Orders</h2>
+        <button onclick="toggleOrderHistory()" class="text-white font-bold text-2xl">✖</button>
+      </div>
+      <div id="orderHistoryList" class="flex-1 overflow-y-auto p-6"></div>
+    </div>
+  </div>
+  
+  <!-- Rating Modal -->
+  <div id="ratingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full fade-in">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">⭐ Rate Your Order</h2>
+      <div id="ratingOrderInfo" class="bg-gray-50 rounded-xl p-4 mb-6 text-sm"></div>
+      <div class="mb-6 text-center">
+        <div class="text-sm text-gray-600 mb-3">How was your experience?</div>
+        <div class="flex justify-center gap-3" id="starRating">
+          <span class="star text-5xl cursor-pointer transition hover:scale-125" onclick="setRating(1)">⭐</span>
+          <span class="star text-5xl cursor-pointer transition hover:scale-125" onclick="setRating(2)">⭐</span>
+          <span class="star text-5xl cursor-pointer transition hover:scale-125" onclick="setRating(3)">⭐</span>
+          <span class="star text-5xl cursor-pointer transition hover:scale-125" onclick="setRating(4)">⭐</span>
+          <span class="star text-5xl cursor-pointer transition hover:scale-125" onclick="setRating(5)">⭐</span>
+        </div>
+      </div>
+      <textarea id="ratingComment" placeholder="Any comments? (optional)" class="w-full border-2 border-gray-200 rounded-xl p-3 mb-4 focus:ring-2 focus:ring-orange-500 focus:border-transparent" rows="3"></textarea>
+      <div class="flex gap-3">
+        <button onclick="closeRatingModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition">Cancel</button>
+        <button onclick="submitRating()" class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition">Submit ⭐</button>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="bg-[#ffaa23] text-white text-center py-7 mt-20 rounded-t-3xl shadow-xl">
+    <div class="flex justify-center items-center gap-3">
+      <img src="piemr-logo.jpg" class="w-8 h-8 rounded-full border-2 border-white shadow bg-white" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23f97316%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2214%22 font-weight=%22bold%22%3EP%3C/text%3E%3C/svg%3E'"/>
+      <span>© 2025 Campus Canteen • PIEMR, Indore</span>
+    </div>
+  </footer>
+
+<script>
+  const allowedRole = "student";
+  if (!localStorage.getItem("isLoggedIn") || localStorage.getItem("userRole") !== allowedRole) window.location.href = "index.html";
+  function logoutFn() { localStorage.clear(); window.location.href = "index.html"; }
+
+  let cart = [];
+  let currentCategory = "all";
+  let currentLang = localStorage.getItem('language') || 'en';
+  let settings = { notifications: true };
+
+  function toggleTheme() {
+    const body = document.body;
+    const darkToggle = document.getElementById('darkToggle');
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', newTheme);
+    darkToggle?.classList.toggle('active');
+    localStorage.setItem('studentTheme', newTheme);
+  }
+  
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('studentTheme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    if(savedTheme === 'dark') {
+      document.getElementById('darkToggle')?.classList.add('active');
+    }
+  });
+
+  function toggleSettings() {
+    document.getElementById('settingsPanel').classList.toggle('active');
+  }
+  
+  function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'hi' : 'en';
+    localStorage.setItem('language', currentLang);
+    document.getElementById('langToggle').classList.toggle('active');
+    document.getElementById('langStatus').textContent = currentLang === 'en' ? 'English' : 'हिंदी';
+    renderCategoryTabs();
+  }
+  
+  function toggleNotifications() {
+    settings.notifications = !settings.notifications;
+    document.getElementById('notifToggle').classList.toggle('active');
+  }
+
+  function getMenuItems() {
+    let seed = [
+      {name:"Idli Sambar", category:"breakfast", price:40, img:"https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400", description:"South Indian favorite", available:true, rating:4.7},
+      {name:"Masala Dosa", category:"breakfast", price:60, img:"https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400", description:"Crispy dosa", available:true, rating:4.8},
+      {name:"Paneer Tikka", category:"snacks", price:90, img:"https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400", description:"Grilled paneer", available:true, rating:4.6},
+      {name:"Chole Bhature", category:"lunch", price:80, img:"https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400", description:"North Indian", available:true, rating:4.5},
+      {name:"Cold Coffee", category:"beverages", price:45, img:"https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400", description:"Chilled coffee", available:true, rating:4.4},
+      {name:"Veg Biryani", category:"lunch", price:120, img:"https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400", description:"Aromatic rice", available:true, rating:4.9},
+      {name:"Samosa", category:"snacks", price:30, img:"https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400", description:"Crispy pastry", available:true, rating:4.3},
+      {name:"Chai", category:"beverages", price:20, img:"https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400", description:"Indian tea", available:true, rating:4.8},
+      {name:"Gulab Jamun", category:"desserts", price:50, img:"https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400", description:"Sweet dessert", available:true, rating:4.6},
+      {name:"Pav Bhaji", category:"snacks", price:70, img:"https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400", description:"Mumbai special", available:true, rating:4.7}
+    ];
+    let adminMenu = JSON.parse(localStorage.getItem("menu") || '[]');
+    adminMenu.forEach(item => {
+      let idx = seed.findIndex(s => s.name===item.name);
+      if(idx >= 0) seed[idx] = {...seed[idx], ...item};
+      else seed.push({...item, id: seed.length + 1});
+    });
+    
+    // Calculate average ratings from user feedback
+    let ratings = JSON.parse(localStorage.getItem("itemRatings")) || {};
+    seed.forEach((item,i)=>{ 
+      item.id=i+1; 
+      if(ratings[item.name] && ratings[item.name].length > 0) {
+        let avg = ratings[item.name].reduce((a,b)=>a+b,0) / ratings[item.name].length;
+        item.rating = avg.toFixed(1);
+      }
+    });
+    return seed;
+  }
+
+  const translations = {
+    en: {all:"All Items",breakfast:"🍳 Breakfast",lunch:"🍛 Lunch",snacks:"🍕 Snacks",beverages:"☕ Beverages",desserts:"🍰 Desserts"},
+    hi: {all:"सभी",breakfast:"🍳 नाश्ता",lunch:"🍛 दोपहर का खाना",snacks:"🍕 स्नैक्स",beverages:"☕ पेय",desserts:"🍰 मिठाई"}
+  };
+
+  function renderCategoryTabs() {
+    let cats = ["all","breakfast","lunch","snacks","beverages","desserts"];
+    let labels = cats.map(c => translations[currentLang][c]);
+    document.getElementById("categoryTabs").innerHTML = cats.map((cat,i) =>
+      `<button onclick="filterCategory('${cat}')" class="category-tab px-6 py-3 rounded-lg font-semibold bg-orange-100${cat===currentCategory?' active':''}">${labels[i]}</button>`
+    ).join("");
+  }
+
+  function renderMenu(category="all", search="") {
+    const grid = document.getElementById("menuGrid");
+    let menuItems = getMenuItems();
+    let filtered = menuItems;
+    if(category!=="all") filtered = filtered.filter(item => item.category===category);
+    if(search) filtered = filtered.filter(item =>
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
+      (item.description && item.description.toLowerCase().includes(search.toLowerCase()))
+    );
+    grid.innerHTML = filtered.length===0 ?
+      `<div class="col-span-3 text-center text-gray-400 py-12">No items found!</div>`
+    : filtered.map(item => `
+      <div class="menu-card bg-white rounded-xl shadow-lg p-4">
+        <img src="${item.img||'https://via.placeholder.com/300x200?text=No+Image'}" alt="${item.name}" style="width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:12px;" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image';">
+        <h3 class="font-bold text-xl mb-1">${item.name}</h3>
+        <p class="text-gray-600 text-sm mb-2">${item.description||""}</p>
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-orange-500 font-black text-xl">₹${item.price}</span>
+          <span class="text-yellow-400 text-sm">⭐${item.rating||'4.5'}</span>
+        </div>
+        <button onclick="addToCart(${item.id})" class="btn-action w-full px-4 py-2 bg-gradient-to-r from-orange-400 to-red-400 text-white rounded-lg font-bold shadow">${item.available!==false ? "Add to Cart" : "Out of Stock"}</button>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('menuSearch')?.addEventListener('input', (e) => {
+    renderMenu(currentCategory, e.target.value);
+  });
+
+  function addToCart(itemId) {
+    const menuItems = getMenuItems();
+    const item = menuItems.find(i => i.id === itemId);
+    if (!item) return;
+    const existing = cart.find(i => i.id === itemId);
+    if (existing) { existing.quantity += 1; }
+    else { cart.push({ ...item, quantity: 1 }); }
+    updateCart();
+    renderCart();
+  }
+  
+  function updateCart() {
+    document.getElementById("cartCount").textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+  }
+  
+  function renderCart() {
+    const cartDiv = document.getElementById("cartItems");
+    if(cart.length === 0) {
+      cartDiv.innerHTML = "<div class='text-center text-gray-400 mt-20'>Cart is empty</div>";
+      document.getElementById("cartSubtotal").textContent = "₹0";
+      document.getElementById("cartTax").textContent = "₹0";
+      document.getElementById("cartTotal").textContent = "₹0";
+      return;
+    }
+    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let tax = Math.round(subtotal * 0.05);
+    let total = subtotal + tax;
+    cartDiv.innerHTML = cart.map(item => `
+      <div class='flex mb-4 items-center'>
+        <img src="${item.img}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;margin-right:12px;" onerror="this.src='https://via.placeholder.com/50';">
+        <div class="flex-1">
+          <div class="font-bold">${item.name} (${item.quantity})</div>
+          <div class="text-sm text-gray-500">₹${item.price * item.quantity}</div>
+        </div>
+        <button onclick="removeFromCart(${item.id})" class="ml-3 text-red-600 hover:scale-125 transition">✖</button>
+      </div>
+    `).join('');
+    document.getElementById("cartSubtotal").textContent = "₹" + subtotal;
+    document.getElementById("cartTax").textContent = "₹" + tax;
+    document.getElementById("cartTotal").textContent = "₹" + total;
+  }
+  
+  function removeFromCart(itemId) {
+    cart = cart.filter(i => i.id !== itemId);
+    updateCart();
+    renderCart();
+  }
+  
+  function filterCategory(category) {
+    currentCategory = category;
+    renderMenu(category);
+    renderCategoryTabs();
+  }
+  
+  function clearCart() {
+    if(cart.length === 0) { alert('Cart is already empty!'); return; }
+    if(confirm('Clear all items?')) {
+      cart = [];
+      updateCart();
+      renderCart();
+      alert('Cart cleared! ✅');
+    }
+  }
+  
+  function proceedToCheckout() {
+    if(cart.length === 0) return;
+    document.getElementById("paymentModal").classList.remove("hidden");
+    document.getElementById("orderSummary").innerHTML = cart.map(item => `<div>${item.name} x${item.quantity}: ₹${item.price * item.quantity}</div>`).join('') +
+      `<div class="mt-2"><strong>Total: ${document.getElementById("cartTotal").textContent}</strong></div>`;
+  }
+  
+  function processPayment(method) {
+    document.getElementById("paymentModal").classList.add("hidden");
+    document.getElementById("confirmationModal").classList.remove("hidden");
+    
+    let orderId = "ORD" + Math.floor(Math.random() * 100000);
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    orders.push({
+      id: orderId,
+      items: cart.map(i => `${i.name} x${i.quantity}`),
+      total: document.getElementById("cartTotal").textContent,
+      status: "Preparing",
+      method: method
+    });
+    localStorage.setItem("orders", JSON.stringify(orders));
+    
+    let details = `Order <b>${orderId}</b> placed!<br>Payment: ${method === 'online' ? "Online" : "Cash"}<br>Status: Preparing`;
+    document.getElementById("confirmationDetails").innerHTML = details;
+    cart = [];
+    updateCart(); 
+    renderCart(); 
+    renderOrderHistory();
+  }
+  
+  function closePaymentModal() {
+    document.getElementById("paymentModal").classList.add("hidden");
+  }
+  
+  function closeConfirmationModal() {
+    document.getElementById("confirmationModal").classList.add("hidden");
+    toggleOrderHistory(true);
+  }
+  
+  let currentRatingOrderId = null;
+  let selectedRating = 0;
+  
+  function renderOrderHistory() {
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    const list = document.getElementById("orderHistoryList");
+    if(!list) return;
+    if(orders.length === 0) {
+      list.innerHTML = "<div class='text-center text-gray-400 mt-20'>No orders yet</div>";
+      return;
+    }
+    list.innerHTML = orders.map((order, idx) => {
+      let ratingBtn = order.status === "Done" && !order.rated ? 
+        `<button onclick="openRatingModal('${order.id}', ${idx})" class="mt-2 w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-2 rounded-lg font-semibold text-sm hover:shadow-lg transition">⭐ Rate Order</button>` : '';
+      let ratingDisplay = order.rated ? 
+        `<div class="mt-2 text-sm text-green-600 font-semibold">✅ Rated: ${'⭐'.repeat(order.rating)} ${order.ratingComment ? `<br><span class="text-gray-600">"${order.ratingComment}"</span>` : ''}</div>` : '';
+      return `
+        <div class="border-b pb-4 mb-4">
+          <div class="font-bold">Order: ${order.id}</div>
+          <div class="text-sm">Items: ${order.items.join(", ")}</div>
+          <div class="text-sm">Total: ${order.total}</div>
+          <div class="text-sm">Payment: ${order.method || 'N/A'}</div>
+          <div class="mt-1 text-orange-600 font-bold">Status: ${order.status}</div>
+          ${ratingDisplay}
+          ${ratingBtn}
+        </div>
+      `;
+    }).join('');
+  }
+  
+  function openRatingModal(orderId, orderIdx) {
+    currentRatingOrderId = orderId;
+    currentRatingOrderIdx = orderIdx;
+    selectedRating = 0;
+    document.getElementById('ratingModal').classList.remove('hidden');
+    document.getElementById('ratingComment').value = '';
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    let order = orders.find(o => o.id === orderId);
+    if(order) {
+      document.getElementById('ratingOrderInfo').innerHTML = `
+        <div class="font-bold">Order: ${order.id}</div>
+        <div class="text-xs">Items: ${order.items.join(", ")}</div>
+      `;
+    }
+    updateStarDisplay();
+  }
+  
+  function setRating(stars) {
+    selectedRating = stars;
+    updateStarDisplay();
+  }
+  
+  function updateStarDisplay() {
+    const starElements = document.querySelectorAll('#starRating .star');
+    starElements.forEach((star, idx) => {
+      if(idx < selectedRating) {
+        star.style.filter = 'grayscale(0%)';
+        star.style.opacity = '1';
+      } else {
+        star.style.filter = 'grayscale(100%)';
+        star.style.opacity = '0.3';
+      }
+    });
+  }
+  
+  function submitRating() {
+    if(selectedRating === 0) {
+      alert('Please select a rating!');
+      return;
+    }
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    let orderIdx = orders.findIndex(o => o.id === currentRatingOrderId);
+    if(orderIdx !== -1) {
+      orders[orderIdx].rated = true;
+      orders[orderIdx].rating = selectedRating;
+      orders[orderIdx].ratingComment = document.getElementById('ratingComment').value;
+      localStorage.setItem("orders", JSON.stringify(orders));
+      
+      // Update menu item ratings
+      let menuItems = getMenuItems();
+      orders[orderIdx].items.forEach(itemStr => {
+        let itemName = itemStr.split(' x')[0];
+        let menuItem = menuItems.find(m => m.name === itemName);
+        if(menuItem) {
+          let ratings = JSON.parse(localStorage.getItem("itemRatings")) || {};
+          if(!ratings[itemName]) ratings[itemName] = [];
+          ratings[itemName].push(selectedRating);
+          localStorage.setItem("itemRatings", JSON.stringify(ratings));
+        }
+      });
+      
+      closeRatingModal();
+      renderOrderHistory();
+      alert('Thank you for your feedback! ⭐');
+    }
+  }
+  
+  function closeRatingModal() {
+    document.getElementById('ratingModal').classList.add('hidden');
+    currentRatingOrderId = null;
+    selectedRating = 0;
+  }
+  
+  function toggleCart() {
+    let sidebar = document.getElementById("cartSidebar");
+    sidebar.style.transform = sidebar.style.transform === "translateX(0%)" ? "translateX(100%)" : "translateX(0%)";
+  }
+  
+  function toggleOrderHistory(forceOpen=false) {
+    let sidebar = document.getElementById("orderHistory");
+    if(forceOpen) sidebar.style.transform = "translateX(0%)";
+    else sidebar.style.transform = sidebar.style.transform === "translateX(0%)" ? "translateX(100%)" : "translateX(0%)";
+    renderOrderHistory();
+  }
+  
+  function liveMenuSync(){
+    renderMenu(currentCategory, document.getElementById('menuSearch')?.value || "");
+    renderCategoryTabs();
+  }
+  
+  window.onload = function() {
+    renderMenu();
+    renderCategoryTabs();
+    renderCart();
+    renderOrderHistory();
+    setInterval(liveMenuSync, 2000);
+  };
+</script>
+</body>
+</html>

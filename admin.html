@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard | Campus Canteen</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #f6fbfd;
+      --bg-secondary: #ffffff;
+      --text-primary: #232635;
+      --text-secondary: #6b7280;
+      --accent: #ffaa23;
+      --accent-hover: #ff8552;
+    }
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --text-primary: #e5e5e5;
+      --text-secondary: #a0a0a0;
+    }
+    * {margin:0;padding:0;box-sizing:border-box;}
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .dash-card { 
+      box-shadow: 0 6px 32px 0 #ff642729; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      background: var(--bg-secondary);
+    }
+    .dash-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px 0 #ff642740; }
+    .stat-orange { background: linear-gradient(135deg, #ffaf34 0%, #ff8552 100%); }
+    .sidebar-btn { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); color: var(--text-primary); }
+    .sidebar-btn:hover { background: rgba(255,170,35,0.1); transform: translateX(3px); }
+    .highlight-tab { 
+      background: linear-gradient(135deg, #ffaa23, #ff8552); 
+      color: white; 
+      box-shadow: 0 4px 12px rgba(255,170,35,0.3); 
+    }
+    .pop-anim { animation: popalert 1s; }
+    @keyframes popalert { 
+      10%{transform:scale(1.10);} 
+      40%{transform:scale(0.98);} 
+      100%{transform:scale(1);} 
+    }
+    
+    /* Settings Button in Sidebar */
+    .settings-btn-sidebar {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-primary);
+    }
+    .settings-btn-sidebar:hover {
+      background: rgba(102, 126, 234, 0.1);
+      transform: translateX(3px);
+    }
+    
+    /* Settings Panel */
+    .settings-panel {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: 420px;
+      background: var(--bg-secondary);
+      box-shadow: -20px 0 60px rgba(0, 0, 0, 0.3);
+      transform: translateX(100%);
+      transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 100000;
+      overflow-y: auto;
+      backdrop-filter: blur(20px);
+    }
+    .settings-panel.active { 
+      transform: translateX(0);
+    }
+    
+    [data-theme="dark"] .settings-panel {
+      background: rgba(45, 45, 45, 0.98);
+      backdrop-filter: blur(30px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .setting-option {
+      padding: 1.25rem 1.5rem;
+      margin: 0.5rem 1rem;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 170, 35, 0.03);
+      border: 1px solid rgba(255, 170, 35, 0.08);
+    }
+    .setting-option:hover {
+      background: rgba(255, 170, 35, 0.08);
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(255, 170, 35, 0.15);
+    }
+    .setting-option .icon {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Toggle Switch */
+    .toggle-switch {
+      width: 50px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .toggle-switch.active { background: #ffaa23; }
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: 0.3s;
+    }
+    .toggle-switch.active::before { left: 28px; }
+    
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .menu-card {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,170,35,0.1);
+    }
+    .menu-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 32px rgba(255,170,35,0.2);
+    }
+    .menu-card-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .menu-card-body {
+      padding: 1rem;
+    }
+    .menu-card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    .menu-card-category {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: rgba(255,170,35,0.1);
+      color: #ff8552;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .menu-card-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #16a34a;
+      margin-bottom: 0.75rem;
+    }
+    .menu-card-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .image-upload-zone {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+    }
+    .image-upload-zone:hover {
+      border-color: #ffaa23;
+      background: #fff7ed;
+    }
+    .image-upload-zone.drag-over {
+      border-color: #ffaa23;
+      background: #fff7ed;
+      transform: scale(1.02);
+    }
+    .image-preview {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .remove-image-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .remove-image-btn:hover {
+      background: #dc2626;
+      transform: scale(1.1);
+    }
+    
+    .analytics-card {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(255,170,35,0.15);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .analytics-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(255,170,35,0.2);
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffaa23, #ff8552);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+    .user-role-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .user-role-badge.student {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .hidden { display: none !important; }
+    .modal-bg { backdrop-filter: blur(4px); }
+    .animate-fadeIn { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    [data-theme="dark"] aside {
+      background: #2d2d2d;
+      border-color: #3d3d3d;
+    }
+    [data-theme="dark"] .menu-card,
+    [data-theme="dark"] .analytics-card {
+      background: #2d2d2d;
+      border-color: #3d3d3d;
+    }
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea {
+      background: #3d3d3d;
+      color: #e5e5e5;
+      border-color: #4d4d4d;
+    }
+    [data-theme="dark"] .image-upload-zone {
+      background: #3d3d3d;
+      border-color: #4d4d4d;
+    }
+    [data-theme="dark"] .image-upload-zone:hover {
+      border-color: #ffaa23;
+      background: #4a3f2e;
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans flex" data-theme="light">
+  
+  <div id="notif" class="hidden fixed top-8 right-8 bg-white text-[#ffaa23] font-bold px-8 py-4 rounded-lg shadow-xl border border-[#ffd48c] text-lg z-50"></div>
+  
+  <!-- ADD MENU MODAL -->
+  <div id="addMenuModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-bg z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full animate-fadeIn overflow-y-auto max-h-[90vh]">
+      <h2 class="text-2xl font-bold text-[#ffaa23] mb-6 flex items-center gap-2">
+        <span>🍽️</span> Add New Dish
+      </h2>
+      <form id="addMenuForm" onsubmit="submitMenuForm(event)" class="space-y-5">
+        
+        <!-- Image Upload Section -->
+        <div>
+          <label class="block text-sm font-semibold mb-3">Dish Image *</label>
+          <div id="imageUploadZone" class="image-upload-zone" onclick="document.getElementById('dishImageInput').click()">
+            <input type="file" id="dishImageInput" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+            <div id="uploadPlaceholder">
+              <div class="text-5xl mb-3">📸</div>
+              <p class="font-semibold text-gray-700">Click to upload or drag & drop</p>
+              <p class="text-sm text-gray-500 mt-2">PNG, JPG, GIF up to 5MB</p>
+            </div>
+            <div id="imagePreviewContainer" class="hidden relative">
+              <img id="imagePreview" class="image-preview" src="" alt="Preview">
+              <button type="button" class="remove-image-btn" onclick="removeImage(event)">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Dish Name *</label>
+            <input type="text" id="dishName" required placeholder="e.g. Masala Dosa" 
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] focus:border-transparent transition">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold mb-2">Category *</label>
+            <select id="dishCategory" required 
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] focus:border-transparent transition">
+              <option value="">Select Category</option>
+              <option value="breakfast">🌅 Breakfast</option>
+              <option value="lunch">🍛 Lunch</option>
+              <option value="snacks">🍟 Snacks</option>
+              <option value="beverages">☕ Beverages</option>
+              <option value="desserts">🍰 Desserts</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Price (₹) *</label>
+            <input type="number" id="dishPrice" required min="1" placeholder="e.g. 50" 
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] focus:border-transparent transition">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold mb-2">Status</label>
+            <select id="dishAvailable" 
+              class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] focus:border-transparent transition">
+              <option value="true">✅ Available</option>
+              <option value="false">❌ Not Available</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">Description</label>
+          <textarea id="dishDescription" rows="3" placeholder="Describe your delicious dish..."
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] focus:border-transparent transition resize-none"></textarea>
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button type="submit" class="btn-primary flex-1 bg-[#ffaa23] text-white px-6 py-3 rounded-lg font-bold hover:bg-orange-500 transition shadow-lg">
+            ✅ Add Dish
+          </button>
+          <button type="button" onclick="closeAddMenuModal()" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
+            ❌ Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD STOCK MODAL -->
+  <div id="addStockModal" class="hidden fixed inset-0 bg-black bg-opacity-50 modal-bg z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-fadeIn">
+      <h2 class="text-2xl font-bold text-[#ffaa23] mb-6 flex items-center gap-2"><span>📦</span> Add Ingredient</h2>
+      <form id="addStockForm" onsubmit="submitStockForm(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold mb-2">Ingredient Name *</label>
+          <input type="text" id="stockName" required placeholder="e.g. Rice" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] focus:border-transparent transition">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Quantity *</label>
+          <input type="number" id="stockQty" required min="1" placeholder="e.g. 10" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] focus:border-transparent transition">
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button type="submit" class="btn-primary flex-1 bg-[#ffaa23] text-white px-6 py-3 rounded-lg font-bold hover:bg-orange-500 transition shadow-lg">✅ Add</button>
+          <button type="button" onclick="closeAddStockModal()" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-300 transition">❌ Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="bg-white border-r w-[220px] min-h-screen flex flex-col py-8 px-3 shadow-2xl">
+    <div class="flex items-center gap-3 mb-10">
+      <img src="piemr-logo.jpg" class="w-12 h-12 rounded-full border-2 border-[#ffaa23] bg-white" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22%3E%3Ccircle cx=%2224%22 cy=%2224%22 r=%2224%22 fill=%22%23ffaa23%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2220%22 font-weight=%22bold%22%3EA%3C/text%3E%3C/svg%3E'"/>
+      <div>
+        <span class="block text-xl font-black text-[#ffaa23]">ADMIN</span>
+        <span class="block text-xs text-gray-500 font-semibold">Campus Canteen</span>
+      </div>
+    </div>
+    <nav id="sidebarNav" class="flex-1 flex flex-col gap-2">
+      <button onclick="showDashboard()" class="sidebar-btn highlight-tab flex gap-3 items-center px-4 py-2 rounded-lg font-bold text-lg transition"><span>🏠</span> Dashboard</button>
+      <button onclick="showTab('menu')" class="sidebar-btn flex gap-3 items-center px-4 py-2 rounded-lg text-base font-semibold transition"><span>🥗</span> Menu</button>
+      <button onclick="showTab('orders')" class="sidebar-btn flex gap-3 items-center px-4 py-2 rounded-lg text-base font-semibold transition"><span>🛒</span> Orders</button>
+      <button onclick="showTab('stock')" class="sidebar-btn flex gap-3 items-center px-4 py-2 rounded-lg text-base font-semibold transition"><span>📦</span> Stock</button>
+      <button onclick="showTab('users')" class="sidebar-btn flex gap-3 items-center px-4 py-2 rounded-lg text-base font-semibold transition"><span>👥</span> Users</button>
+      <button onclick="showTab('reports')" class="sidebar-btn flex gap-3 items-center px-4 py-2 rounded-lg text-base font-semibold transition"><span>📊</span> Reports</button>
+      <button onclick="toggleSettings()" class="settings-btn-sidebar flex gap-3 items-center px-4 py-2 rounded-lg text-base font-semibold transition mt-4">
+        ⚙️ Settings
+      </button>
+      <button onclick="logoutFn()" class="sidebar-btn flex gap-3 items-center px-4 py-2 rounded-lg font-semibold text-[#dc2626] hover:bg-orange-50 transition mt-auto"><span>🚪</span> Logout</button>
+    </nav>
+  </aside>
+
+  <main class="flex-1 min-h-screen flex flex-col" style="margin-left: 220px;">
+    
+    <header class="w-full flex justify-between items-center px-10 py-8 bg-white shadow-sm border-b">
+      <div class="text-2xl font-bold tracking-wide">
+        Welcome, <span class="text-[#ffaa23]">Admin</span> 👨‍💼
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-sm text-gray-500 font-semibold">PIEMR Canteen</span>
+        <img src="piemr-logo.jpg" class="w-10 h-10 rounded-full border-2 border-[#ffaa23] bg-white" alt="PIEMR Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%2220%22 fill=%22%23ffaa23%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22%3EA%3C/text%3E%3C/svg%3E'"/>
+      </div>
+    </header>
+    
+    <!-- DASHBOARD TAB -->
+    <section id="dashboardTab" class="p-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="analytics-card stat-orange text-white p-6 rounded-2xl shadow-2xl border-4 border-orange-300">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-5xl">📦</div>
+            <div class="text-3xl font-black" id="totalOrders">0</div>
+          </div>
+          <div class="text-base font-semibold">Total Orders</div>
+        </div>
+        <div class="analytics-card bg-green-500 text-white p-6 rounded-2xl shadow-2xl border-4 border-green-300">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-5xl">💰</div>
+            <div class="text-3xl font-black" id="totalRevenue">₹0</div>
+          </div>
+          <div class="text-base font-semibold">Total Revenue</div>
+        </div>
+        <div class="analytics-card bg-blue-500 text-white p-6 rounded-2xl shadow-2xl border-4 border-blue-300">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-5xl">🍽️</div>
+            <div class="text-3xl font-black" id="totalMenuItems">0</div>
+          </div>
+          <div class="text-base font-semibold">Menu Items</div>
+        </div>
+        <div class="analytics-card bg-purple-500 text-white p-6 rounded-2xl shadow-2xl border-4 border-purple-300">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-5xl">📊</div>
+            <div class="text-3xl font-black" id="stockItems">0</div>
+          </div>
+          <div class="text-base font-semibold">Stock Items</div>
+        </div>
+      </div>
+
+      <!-- ADVANCED ANALYTICS SECTION -->
+      <div class="max-w-5xl mx-auto mb-12 bg-white p-6 rounded-2xl shadow-xl">
+        <h2 class="text-2xl font-bold mb-5 text-[#ffaa23]">📊 Advanced Sales Analytics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="mb-2 font-semibold text-orange-400">Daily Sales Trend</h3>
+            <canvas id="dailySalesChart" height="200"></canvas>
+          </div>
+          <div>
+            <h3 class="mb-2 font-semibold text-orange-400">Orders by Category</h3>
+            <canvas id="categoryPieChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MENU TAB -->
+    <section id="menuTab" class="hidden max-w-7xl mx-auto w-full p-5 mb-9">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div class="flex gap-3">
+          <div class="text-lg font-bold">Menu Management</div>
+          <button onclick="seedFullMenu()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-emerald-700 transition text-sm">🌱 Seed Menu</button>
+        </div>
+        <div class="flex gap-3">
+          <input type="text" id="menuSearch" placeholder="🔍 Search menu..." class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] w-64">
+          <button onclick="openAddMenuModal()" class="btn-primary bg-[#ffaa23] text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-orange-400 transition">+ Add Dish</button>
+        </div>
+      </div>
+      <div id="menuGridContainer" class="menu-grid"></div>
+    </section>
+
+    <!-- ORDERS TAB -->
+    <section id="ordersTab" class="hidden max-w-6xl mx-auto w-full rounded-2xl bg-white dash-card p-5 mb-9">
+      <div class="flex items-center justify-between mb-5">
+        <div class="text-2xl font-bold text-orange-500">🛒 Live Orders Management</div>
+        <input type="text" id="orderSearch" placeholder="🔍 Search orders..." class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] w-64">
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-gray-500 border-b-2"><th class="pb-3">Order ID</th><th class="pb-3">Items</th><th class="pb-3">Total</th><th class="pb-3">Status</th><th class="pb-3">Actions</th></tr>
+          </thead>
+          <tbody id="ordersTableBody"></tbody>
+        </table>
+      </div>
+      <div id="noOrders" class="mt-5 text-center text-gray-400 hidden">No orders found.</div>
+    </section>
+
+    <!-- STOCK TAB -->
+    <section id="stockTab" class="hidden max-w-5xl mx-auto w-full rounded-2xl bg-white dash-card p-5 mb-9">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div class="text-lg font-bold">Stock Management</div>
+        <div class="flex gap-3">
+          <input type="text" id="stockSearch" placeholder="🔍 Search stock..." class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] w-64">
+          <button onclick="openAddStockModal()" class="btn-primary bg-[#ffaa23] text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-orange-400 transition">+ Add Ingredient</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-gray-500"><th>Ingredient</th><th>Quantity</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="stockTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- USERS TAB -->
+    <section id="usersTab" class="hidden max-w-5xl mx-auto w-full rounded-2xl bg-white dash-card p-5 mb-9">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div class="text-lg font-bold">👥 User Management</div>
+        <input type="text" id="userSearch" placeholder="🔍 Search users..." class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#ffaa23] w-64">
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-gray-500"><th>User</th><th>Role</th><th>Email</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr class="border-b hover:bg-orange-50 transition">
+              <td class="py-3">
+                <div class="flex items-center gap-3">
+                  <div class="user-avatar">RA</div>
+                  <div>
+                    <div class="font-bold">Rahul Sharma</div>
+                    <div class="text-sm text-gray-500">Last login: 2 hours ago</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="user-role-badge student">Student</span></td>
+              <td>rahul@piemr.edu.in</td>
+              <td><span class="text-green-600 font-bold">Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- REPORTS TAB -->
+    <section id="reportsTab" class="hidden max-w-5xl mx-auto w-full rounded-2xl bg-white dash-card p-5 mb-9">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div class="text-lg font-bold">Reports — Sales Analytics</div>
+        <div class="flex gap-3">
+          <button onclick="exportCSV()" class="btn-primary bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-emerald-700 transition">📥 CSV</button>
+          <button onclick="printInvoice()" class="btn-primary bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition">🖨️ Print</button>
+        </div>
+      </div>
+      <div class="text-xl text-[#ffaa23] font-bold mb-6">Total Sales: ₹<span id="salesTotalStat">0</span></div>
+      <div class="bg-white p-4 rounded-lg border">
+        <canvas id="salesChart" height="100"></canvas>
+      </div>
+    </section>
+
+    <footer class="bg-[#ffaa23] text-white text-center text-[15px] py-7 mt-auto rounded-t-3xl shadow-xl flex justify-center items-center gap-3">
+      <img src="piemr-logo.jpg" class="w-8 h-8 rounded-full border-2 border-white shadow bg-white" alt="PIEMR" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23ffaa23%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2214%22 font-weight=%22bold%22%3EA%3C/text%3E%3C/svg%3E'"/>
+      <span>&copy; 2025 Campus Canteen • PIEMR, Indore</span>
+    </footer>
+  </main>
+
+  <!-- Settings Panel -->
+  <div id="settingsPanel" class="settings-panel">
+    <div class="bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white p-8 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"></div>
+      <div class="relative z-10">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-3xl font-black tracking-tight">⚙️ Settings</h2>
+          <button onclick="toggleSettings()" class="text-white font-bold text-3xl hover:rotate-90 hover:scale-110 transition-all duration-300 active:scale-95">✖</button>
+        </div>
+        <p class="text-purple-100 text-sm font-medium">Customize your experience</p>
+      </div>
+    </div>
+    
+    <div class="p-4 space-y-3">
+      <!-- Dark Mode -->
+      <div class="setting-option" onclick="toggleTheme()">
+        <div class="icon bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">🌓</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Dark Mode</div>
+          <div class="text-sm text-gray-500">Night theme</div>
+        </div>
+        <div class="toggle-switch" id="darkToggle"></div>
+      </div>
+      
+      <!-- Notifications -->
+      <div class="setting-option" onclick="toggleNotifications()">
+        <div class="icon bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">🔔</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Notifications</div>
+          <div class="text-sm text-gray-500">System alerts</div>
+        </div>
+        <div class="toggle-switch active" id="notifToggle"></div>
+      </div>
+      
+      <!-- Sound Effects -->
+      <div class="setting-option" onclick="toggleSound()">
+        <div class="icon bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg">🔊</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Sound Effects</div>
+          <div class="text-sm text-gray-500">Audio alerts</div>
+        </div>
+        <div class="toggle-switch active" id="soundToggle"></div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="notifSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYJGGi88OScTgwOUK" preload="auto"></audio>
+
+<script>
+// AUTH & THEME
+if(!localStorage.getItem("isLoggedIn")||localStorage.getItem("userRole")!=="admin"){window.location.href="index.html";}
+function logoutFn(){localStorage.clear();window.location.href="index.html";}
+
+let soundEnabled = true;
+let notificationsEnabled = true;
+
+function toggleSettings() {
+  document.getElementById('settingsPanel').classList.toggle('active');
+}
+
+function toggleTheme(){
+  const body=document.body;
+  const toggle=document.getElementById('darkToggle');
+  const currentTheme=body.getAttribute('data-theme');
+  const newTheme=currentTheme==='light'?'dark':'light';
+  body.setAttribute('data-theme',newTheme);
+  toggle.classList.toggle('active');
+  localStorage.setItem('adminTheme',newTheme);
+  playSound();
+}
+
+function toggleNotifications() {
+  notificationsEnabled = !notificationsEnabled;
+  document.getElementById('notifToggle').classList.toggle('active');
+  playSound();
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundToggle').classList.toggle('active');
+}
+
+function toggleMobileSidebar(){document.getElementById('sidebar').classList.toggle('mobile-open');}
+
+function playSound(){
+  if(!soundEnabled) return;
+  const audio=document.getElementById('notifSound');
+  audio.currentTime=0;
+  audio.play().catch(()=>{});
+}
+
+// DATA FUNCTIONS
+function fetchOrders(){return JSON.parse(localStorage.getItem("orders"))||[];}
+function fetchMenu(){return JSON.parse(localStorage.getItem("menu"))||[];}
+function fetchStock(){let st=localStorage.getItem("stock");return st?JSON.parse(st):[{name:"Rice",qty:10},{name:"Coffee Beans",qty:7},{name:"Paneer",qty:4}];}
+function saveMenu(menu){localStorage.setItem("menu",JSON.stringify(menu));}
+function saveStock(stock){localStorage.setItem("stock",JSON.stringify(stock));}
+
+// IMAGE UPLOAD HANDLING
+let selectedImageData = null;
+
+function handleImageSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (file.size > 5 * 1024 * 1024) {
+    alert('Image size should be less than 5MB');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    selectedImageData = e.target.result;
+    document.getElementById('uploadPlaceholder').classList.add('hidden');
+    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+    document.getElementById('imagePreview').src = selectedImageData;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage(event) {
+  event.stopPropagation();
+  selectedImageData = null;
+  document.getElementById('uploadPlaceholder').classList.remove('hidden');
+  document.getElementById('imagePreviewContainer').classList.add('hidden');
+  document.getElementById('dishImageInput').value = '';
+}
+
+// Drag & Drop
+const uploadZone = document.getElementById('imageUploadZone');
+if(uploadZone) {
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+  });
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('drag-over');
+  });
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const input = document.getElementById('dishImageInput');
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      input.files = dataTransfer.files;
+      handleImageSelect({target: input});
+    }
+  });
+}
+
+// MENU MODAL
+function openAddMenuModal(){
+  selectedImageData = null;
+  document.getElementById('uploadPlaceholder').classList.remove('hidden');
+  document.getElementById('imagePreviewContainer').classList.add('hidden');
+  document.getElementById("addMenuModal").classList.remove("hidden");
+  document.getElementById("dishName").focus();
+}
+
+function closeAddMenuModal(){
+  document.getElementById("addMenuModal").classList.add("hidden");
+  document.getElementById("addMenuForm").reset();
+  selectedImageData = null;
+}
+
+function submitMenuForm(e){
+  e.preventDefault();
+  let menu = fetchMenu();
+  let name = document.getElementById("dishName").value.trim();
+  let category = document.getElementById("dishCategory").value;
+  let price = parseInt(document.getElementById("dishPrice").value);
+  let description = document.getElementById("dishDescription").value.trim() || "Delicious dish";
+  let available = document.getElementById("dishAvailable").value === "true";
+  let img = selectedImageData || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(name);
+  
+  let dish = {name, category, price, img, description, available, rating: (4 + Math.random()).toFixed(1)};
+  menu.push(dish);
+  saveMenu(menu);
+  popNotif("✅ Dish added successfully!");
+  playSound();
+  closeAddMenuModal();
+  renderAll();
+}
+
+// RENDER MENU AS CARDS
+function renderMenu(search=""){
+  let menu = fetchMenu();
+  if(search){
+    menu = menu.filter(d => 
+      d.name.toLowerCase().includes(search.toLowerCase()) ||
+      d.category.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+  const container = document.getElementById("menuGridContainer");
+  container.innerHTML = '';
+  
+  menu.forEach((dish, idx) => {
+    const availableClass = dish.available ? 'active' : '';
+    const availableText = dish.available ? 'Available' : 'Not Available';
+    
+    container.innerHTML += `
+      <div class="menu-card">
+        <img src="${dish.img}" alt="${dish.name}" class="menu-card-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+        <div class="menu-card-body">
+          <h3 class="menu-card-title">${dish.name}</h3>
+          <span class="menu-card-category">${dish.category}</span>
+          <div class="menu-card-price">₹${dish.price}</div>
+          <p class="text-sm text-gray-600 mb-3">${dish.description || 'No description'}</p>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-semibold">⭐ ${dish.rating || '4.5'}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold">${availableText}</span>
+              <div class="toggle-switch ${availableClass}" onclick="toggleAvailability(${idx})"></div>
+            </div>
+          </div>
+          <div class="menu-card-actions">
+            <button onclick="deleteDish(${idx})" class="flex-1 bg-red-100 text-red-600 px-3 py-2 rounded-lg font-bold hover:bg-red-200 transition text-sm">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  if(menu.length === 0) {
+    container.innerHTML = '<div class="col-span-full text-center text-gray-400 py-10">No dishes found. Add your first dish!</div>';
+  }
+}
+
+function toggleAvailability(idx) {
+  let menu = fetchMenu();
+  menu[idx].available = !menu[idx].available;
+  saveMenu(menu);
+  popNotif(menu[idx].available ? "✅ Dish marked available" : "❌ Dish marked unavailable");
+  renderAll();
+}
+
+function seedFullMenu(){
+  let demo = [
+    {name:"Idli Sambar", category:"breakfast", price:40, img:"https://via.placeholder.com/300x200?text=Idli+Sambar", description:"South Indian favorite", available:true, rating:"4.7"},
+    {name:"Masala Dosa", category:"breakfast", price:60, img:"https://via.placeholder.com/300x200?text=Masala+Dosa", description:"Crispy dosa with spicy potato filling", available:true, rating:"4.8"},
+    {name:"Paneer Tikka", category:"snacks", price:90, img:"https://via.placeholder.com/300x200?text=Paneer+Tikka", description:"Grilled paneer with spices", available:true, rating:"4.6"},
+    {name:"Chole Bhature", category:"lunch", price:80, img:"https://via.placeholder.com/300x200?text=Chole+Bhature", description:"Classic North Indian", available:true, rating:"4.5"},
+    {name:"Cold Coffee", category:"beverages", price:45, img:"https://via.placeholder.com/300x200?text=Cold+Coffee", description:"Chilled refreshing coffee", available:true, rating:"4.4"},
+    {name:"Regular Thaali", category:"lunch", price:150, img:"https://via.placeholder.com/300x200?text=Thaali", description:"Complete balanced meal", available:true, rating:"4.9"}
+  ];
+  localStorage.setItem("menu", JSON.stringify(demo));
+  popNotif('✅ Default menu restored!');
+  playSound();
+  renderAll();
+}
+
+function deleteDish(idx){
+  let menu = fetchMenu();
+  if(confirm(`Delete ${menu[idx].name}?`)){
+    menu.splice(idx,1);
+    saveMenu(menu);
+    popNotif('🗑️ Dish deleted!');
+    renderAll();
+  }
+}
+
+// STOCK
+function openAddStockModal(){
+  document.getElementById("addStockModal").classList.remove("hidden");
+}
+function closeAddStockModal(){
+  document.getElementById("addStockModal").classList.add("hidden");
+  document.getElementById("addStockForm").reset();
+}
+function submitStockForm(e){
+  e.preventDefault();
+  let stock = fetchStock();
+  let name = document.getElementById("stockName").value.trim();
+  let qty = parseInt(document.getElementById("stockQty").value);
+  stock.push({name, qty});
+  saveStock(stock);
+  popNotif('✅ Ingredient added!');
+  playSound();
+  closeAddStockModal();
+  renderAll();
+}
+function renderStock(search=""){
+  let stock = fetchStock();
+  if(search) stock = stock.filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
+  const tbody = document.getElementById("stockTableBody");
+  tbody.innerHTML = '';
+  stock.forEach((item, idx) => {
+    tbody.innerHTML += `
+      <tr class="border-b hover:bg-orange-50 transition">
+        <td class="py-3 font-bold">${item.name}</td>
+        <td class="py-3">${item.qty} units</td>
+        <td class="py-3">
+          <button onclick="deleteStock(${idx})" class="bg-red-100 text-red-600 px-3 py-1 rounded font-bold hover:bg-red-200 transition">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+function deleteStock(idx){
+  let stock = fetchStock();
+  if(confirm(`Delete ${stock[idx].name}?`)){
+    stock.splice(idx,1);
+    saveStock(stock);
+    popNotif('🗑️ Stock deleted!');
+    renderAll();
+  }
+}
+
+// ORDERS
+function renderOrders(search=""){
+  let orders = fetchOrders();
+  if(search) orders = orders.filter(o => o.id.toLowerCase().includes(search.toLowerCase()));
+  const tbody = document.getElementById("ordersTableBody");
+  tbody.innerHTML = '';
+  orders.forEach((order, idx) => {
+    let statusClass = order.status === "Paid" ? "bg-green-100 text-green-700" : 
+                      order.status === "Ready" ? "bg-blue-100 text-blue-700" : 
+                      "bg-yellow-100 text-yellow-700";
+    let statusText = order.status || "Pending";
+    
+    tbody.innerHTML += `
+      <tr class="border-b hover:bg-orange-50 transition">
+        <td class="py-4 font-bold text-orange-600">${order.id}</td>
+        <td class="py-4">${order.items ? order.items.join(", ") : "--"}</td>
+        <td class="py-4 font-bold text-green-600">${order.total || "₹0"}</td>
+        <td class="py-4"><span class="${statusClass} px-3 py-1 rounded-lg font-bold">${statusText}</span></td>
+        <td class="py-4">
+          <div class="flex gap-2">
+            ${order.status !== "Ready" && order.status !== "Paid" ? 
+              `<button onclick="markOrderReady(${idx})" class="bg-blue-500 text-white px-3 py-1 rounded-lg font-bold hover:bg-blue-600 transition text-sm">✅ Ready</button>` : ''}
+            ${order.status === "Ready" ? 
+              `<button onclick="markOrderPaid(${idx})" class="bg-green-500 text-white px-3 py-1 rounded-lg font-bold hover:bg-green-600 transition text-sm">💰 Paid</button>` : ''}
+            <button onclick="deleteOrder(${idx})" class="bg-red-500 text-white px-3 py-1 rounded-lg font-bold hover:bg-red-600 transition text-sm">🗑️ Delete</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+  document.getElementById("noOrders").classList.toggle("hidden", orders.length!==0);
+}
+
+function markOrderReady(idx){
+  let orders = fetchOrders();
+  orders[idx].status = "Ready";
+  localStorage.setItem("orders", JSON.stringify(orders));
+  popNotif('✅ Order marked as Ready!');
+  playSound();
+  renderAll();
+}
+
+function markOrderPaid(idx){
+  let orders = fetchOrders();
+  orders[idx].status = "Paid";
+  localStorage.setItem("orders", JSON.stringify(orders));
+  popNotif('💰 Order marked as Paid!');
+  playSound();
+  renderAll();
+}
+
+function deleteOrder(idx){
+  let orders = fetchOrders();
+  if(confirm(`Delete order ${orders[idx].id}?`)){
+    orders.splice(idx, 1);
+    localStorage.setItem("orders", JSON.stringify(orders));
+    popNotif('🗑️ Order deleted!');
+    playSound();
+    renderAll();
+  }
+}
+
+// STATS & CHARTS
+function renderStats(){
+  let orders = fetchOrders();
+  let menu = fetchMenu();
+  let stock = fetchStock();
+  let revenue = orders.reduce((sum, o) => sum + (parseInt((o.total+"").replace(/[^\d]/g,''))||0), 0);
+  
+  document.getElementById("totalOrders").textContent = orders.length;
+  document.getElementById("totalRevenue").textContent = "₹" + revenue;
+  document.getElementById("totalMenuItems").textContent = menu.length;
+  document.getElementById("stockItems").textContent = stock.length;
+}
+
+function renderChart(){
+  const ctx = document.getElementById("salesChart");
+  if(!ctx) return;
+  let orders = fetchOrders();
+  let labels = orders.map((o,i) => `Order ${i+1}`);
+  let data = orders.map(o => parseInt((o.total+"").replace(/[^\d]/g,''))||0);
+  
+  if(window.salesChartInstance) window.salesChartInstance.destroy();
+  window.salesChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Sales (₹)',
+        data: data,
+        backgroundColor: '#ffaa23',
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+}
+
+function updateAdvancedAnalytics(){
+  let orders = fetchOrders();
+  let total = orders.reduce((sum, o) => sum + (parseInt((o.total+"").replace(/[^\d]/g,''))||0), 0);
+  document.getElementById("salesTotalStat").textContent = total;
+}
+
+// ADVANCED ANALYTICS CHARTS
+function renderAdvancedCharts() {
+  const orders = JSON.parse(localStorage.getItem("orders") || "[]")
+    .filter(o => o.status && (o.status === "Paid" || o.status === "Ready" || o.status === "Done"));
+  
+  if (!orders.length) return;
+
+  // Daily Sales Trend
+  let salesPerDay = {};
+  orders.forEach(order => {
+    let d = order.date ? new Date(order.date) : new Date();
+    let day = `${d.getDate()}-${d.getMonth()+1}`;
+    let amt = parseInt((order.total+"").replace(/[^\d]/g,''))||0;
+    salesPerDay[day] = (salesPerDay[day] || 0) + amt;
+  });
+  
+  let days = Object.keys(salesPerDay);
+  let totals = days.map(day => salesPerDay[day]);
+  
+  if(window.dailySalesGraph) window.dailySalesGraph.destroy();
+  window.dailySalesGraph = new Chart(document.getElementById("dailySalesChart"), {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [{
+        label: "₹ Sales",
+        data: totals,
+        borderColor: "#ffaa23",
+        pointBackgroundColor: "#ffaa23",
+        backgroundColor: "rgba(255,170,35,0.15)",
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true, 
+      plugins: {legend: {display: false}},
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  // Category Pie Chart
+  let menu = JSON.parse(localStorage.getItem("menu") || "[]");
+  let cats = ['breakfast', 'lunch', 'snacks', 'beverages', 'desserts'];
+  let ordersByCat = {};
+  cats.forEach(cat => ordersByCat[cat] = 0);
+  
+  orders.forEach(order => {
+    (order.items || []).forEach(itemName => {
+      let namePart = itemName.split(" x")[0];
+      let menuItem = menu.find(d => d.name === namePart);
+      if(menuItem && cats.includes(menuItem.category)) ordersByCat[menuItem.category]++;
+    });
+  });
+  
+  if(window.catPieGraph) window.catPieGraph.destroy();
+  window.catPieGraph = new Chart(document.getElementById("categoryPieChart"), {
+    type: 'doughnut',
+    data: {
+      labels: cats.map(x => x[0].toUpperCase() + x.slice(1)),
+      datasets: [{
+        data: cats.map(c => ordersByCat[c]),
+        backgroundColor: ["#fbbf24","#34d399","#f87171","#60a5fa","#a78bfa"]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } }
+    }
+  });
+}
+
+// TAB NAVIGATION
+function showTab(tab){
+  document.getElementById('dashboardTab').classList.add('hidden');
+  document.getElementById('menuTab').classList.add('hidden');
+  document.getElementById('ordersTab').classList.add('hidden');
+  document.getElementById('stockTab').classList.add('hidden');
+  document.getElementById('usersTab').classList.add('hidden');
+  document.getElementById('reportsTab').classList.add('hidden');
+  document.getElementById(tab+'Tab').classList.remove('hidden');
+  
+  document.querySelectorAll('#sidebarNav button').forEach(btn=>btn.classList.remove('highlight-tab'));
+  if(tab==='menu') document.querySelectorAll('#sidebarNav button')[1].classList.add('highlight-tab');
+  if(tab==='orders') document.querySelectorAll('#sidebarNav button')[2].classList.add('highlight-tab');
+  if(tab==='stock') document.querySelectorAll('#sidebarNav button')[3].classList.add('highlight-tab');
+  if(tab==='users') document.querySelectorAll('#sidebarNav button')[4].classList.add('highlight-tab');
+  if(tab==='reports') document.querySelectorAll('#sidebarNav button')[5].classList.add('highlight-tab');
+}
+
+function showDashboard(){
+  document.getElementById('dashboardTab').classList.remove('hidden');
+  document.getElementById('menuTab').classList.add('hidden');
+  document.getElementById('ordersTab').classList.add('hidden');
+  document.getElementById('stockTab').classList.add('hidden');
+  document.getElementById('usersTab').classList.add('hidden');
+  document.getElementById('reportsTab').classList.add('hidden');
+  
+  document.querySelectorAll('#sidebarNav button').forEach(btn=>btn.classList.remove('highlight-tab'));
+  document.querySelectorAll('#sidebarNav button')[0].classList.add('highlight-tab');
+  
+  renderAll();
+}
+
+// SEARCH
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('menuSearch')?.addEventListener('input', (e) => renderMenu(e.target.value));
+  document.getElementById('orderSearch')?.addEventListener('input', (e) => renderOrders(e.target.value));
+  document.getElementById('stockSearch')?.addEventListener('input', (e) => renderStock(e.target.value));
+});
+
+// EXPORT
+function exportCSV(){
+  let orders = fetchOrders();
+  let csv = "Order ID,Items,Total,Status\n";
+  orders.forEach(o => {
+    csv += `${o.id},"${o.items ? o.items.join(", ") : ""}",${o.total},${o.status}\n`;
+  });
+  let blob = new Blob([csv], {type: 'text/csv'});
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement('a');
+  a.href = url;
+  a.download = 'orders.csv';
+  a.click();
+  popNotif('📥 CSV Downloaded!');
+}
+
+function printInvoice(){
+  window.print();
+  popNotif('🖨️ Print dialog opened!');
+}
+
+function popNotif(msg){
+  const n=document.getElementById('notif');
+  n.textContent=msg;
+  n.classList.remove("hidden");
+  n.classList.add("pop-anim");
+  setTimeout(()=>{
+    n.classList.add("hidden");
+    n.classList.remove("pop-anim");
+  },1500);
+}
+
+function renderAll(){
+  renderOrders();
+  renderMenu();
+  renderStock();
+  renderStats();
+  renderChart();
+  updateAdvancedAnalytics();
+  renderAdvancedCharts();
+}
+
+window.onload=function(){
+  const savedTheme = localStorage.getItem('adminTheme') || 'light';
+  document.body.setAttribute('data-theme', savedTheme);
+  if(savedTheme === 'dark') document.getElementById('darkToggle').classList.add('active');
+  
+  renderAll();
+  setInterval(renderAll, 2500);
+};
+</script>
+</body>
+</html>

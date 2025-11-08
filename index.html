@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Campus Canteen - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-card: rgba(255, 255, 255, 0.95);
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --accent: #ffaa23;
+      --accent-hover: #ff8552;
+      --accent-glow: rgba(255, 170, 35, 0.4);
+    }
+    
+    [data-theme="dark"] {
+      --bg-primary: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.95);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --accent: #ffaa23;
+      --accent-hover: #ff8552;
+      --accent-glow: rgba(255, 170, 35, 0.3);
+    }
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #ffaa23 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 2rem 0;
+    }
+    
+    [data-theme="dark"] body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    
+    /* Ultra-Smooth Gradient Background */
+    body::before {
+      content: '';
+      position: fixed;
+      width: 200%;
+      height: 200%;
+      top: -50%;
+      left: -50%;
+      background: 
+        radial-gradient(ellipse at 30% 40%, rgba(255, 170, 35, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(102, 126, 234, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(240, 147, 251, 0.12) 0%, transparent 50%);
+      animation: gradient-shift 20s ease-in-out infinite;
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(60px);
+    }
+    
+    @keyframes gradient-shift {
+      0%, 100% { 
+        transform: translate(0, 0) rotate(0deg) scale(1);
+        opacity: 0.8;
+      }
+      33% { 
+        transform: translate(-3%, -3%) rotate(120deg) scale(1.05);
+        opacity: 1;
+      }
+      66% { 
+        transform: translate(3%, 3%) rotate(240deg) scale(0.95);
+        opacity: 0.9;
+      }
+    }
+    
+    /* Premium Floating Particles */
+    .particle {
+      position: fixed;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 70%, transparent 100%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      animation: float-up linear infinite;
+      filter: blur(1px);
+      opacity: 0;
+    }
+    
+    @keyframes float-up {
+      0% { 
+        transform: translateY(100vh) translateX(0) scale(0);
+        opacity: 0;
+      }
+      5% {
+        opacity: 0.6;
+      }
+      50% {
+        opacity: 0.8;
+        transform: translateY(50vh) translateX(20px) scale(1);
+      }
+      95% {
+        opacity: 0.4;
+      }
+      100% { 
+        transform: translateY(-10vh) translateX(-20px) scale(0.8);
+        opacity: 0;
+      }
+    }
+    
+    .container-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 2rem 2rem;
+    }
+    
+    /* Glass-morphism Card */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    
+    .role-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 2px solid transparent;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    
+    .role-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: 0.5s;
+    }
+    
+    .role-card:hover::before {
+      left: 100%;
+    }
+    
+    .role-card:hover {
+      transform: translateY(-12px) scale(1.05);
+      border-color: var(--accent);
+      background: rgba(255, 170, 35, 0.15);
+      box-shadow: 
+        0 20px 40px var(--accent-glow),
+        0 0 60px var(--accent-glow);
+    }
+    
+    .role-card.selected {
+      border-color: var(--accent);
+      background: rgba(255, 170, 35, 0.25);
+      box-shadow: 
+        0 15px 35px var(--accent-glow),
+        0 0 40px var(--accent-glow),
+        inset 0 0 20px rgba(255, 170, 35, 0.2);
+      transform: scale(1.08);
+    }
+    
+    /* Pulsing Checkmark on Selected */
+    .role-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      animation: pulse 1.5s ease infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+    }
+    
+    /* Theme Toggle Ultra Smooth */
+    .theme-toggle {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      width: 70px;
+      height: 35px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 35px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.15) rotate(5deg);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+    
+    .theme-toggle.active {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+    }
+    
+    .theme-toggle::before {
+      content: '☀️';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: white;
+      border-radius: 50%;
+      top: 2.5px;
+      left: 3px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .theme-toggle.active::before {
+      content: '🌙';
+      left: 37px;
+      transform: rotate(360deg);
+    }
+    
+    /* Input Fields Premium */
+    input {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    input:focus {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--accent-glow);
+      border-color: var(--accent);
+    }
+    
+    /* Button Ultra Premium */
+    .btn-login {
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      cursor: pointer;
+    }
+    
+    .btn-login::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: 0.6s;
+    }
+    
+    .btn-login:hover::before {
+      left: 100%;
+    }
+    
+    .btn-login:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 50px var(--accent-glow);
+    }
+    
+    .btn-login:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+    
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Shake Animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+      20%, 40%, 60%, 80% { transform: translateX(10px); }
+    }
+    
+    .shake {
+      animation: shake 0.6s ease;
+    }
+    
+    /* Fade In Animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-fade-in {
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .role-icon {
+      font-size: 3.5rem;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .role-card:hover .role-icon {
+      transform: scale(1.3) rotate(10deg);
+    }
+    
+    .role-card.selected .role-icon {
+      transform: scale(1.2);
+      filter: drop-shadow(0 12px 24px var(--accent-glow));
+    }
+    
+    /* Glow Text */
+    .glow-text {
+      text-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
+      animation: glow-pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes glow-pulse {
+      0%, 100% { text-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow); }
+      50% { text-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--accent-glow); }
+    }
+    
+    /* Info Badge Animation */
+    .info-badge {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .info-badge:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Demo Badge Enhancement */
+    .demo-badge {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2));
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(59, 130, 246, 0.4);
+      transition: all 0.3s ease;
+    }
+    
+    .demo-badge:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      border-radius: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+    }
+    
+    /* =========================== */
+    /* DARK MODE FIX - Final Patch */
+    /* =========================== */
+    
+    /* All text elements readable in dark mode */
+    .glass-card,
+    .demo-badge,
+    .info-badge,
+    .role-card p,
+    label,
+    #errorMsg {
+      color: var(--text-primary) !important;
+    }
+    
+    /* Glow text special handling */
+    [data-theme="dark"] .glow-text {
+      color: #ffaa23 !important;
+      text-shadow: 0 0 20px rgba(255, 170, 35, 0.6), 0 0 40px rgba(255, 170, 35, 0.3);
+    }
+    
+    /* Input fields dark mode */
+    [data-theme="dark"] input {
+      color: #f1f5f9 !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    [data-theme="dark"] input::placeholder {
+      color: rgba(241, 245, 249, 0.5) !important;
+    }
+    
+    /* Button text always white */
+    .btn-login,
+    #loginBtn {
+      color: #ffffff !important;
+    }
+    
+    /* Demo badge dark mode */
+    [data-theme="dark"] .demo-badge {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 51, 234, 0.15));
+      border-color: rgba(59, 130, 246, 0.3) !important;
+    }
+    
+    [data-theme="dark"] .demo-badge code {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #f1f5f9 !important;
+    }
+    
+    /* Info badges dark mode */
+    [data-theme="dark"] .info-badge {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #f1f5f9 !important;
+    }
+    
+    /* Role card icons */
+    .role-icon {
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+    
+    [data-theme="dark"] .role-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="dark"] .role-card:hover {
+      background: rgba(255, 170, 35, 0.12);
+    }
+    
+    [data-theme="dark"] .role-card.selected {
+      background: rgba(255, 170, 35, 0.2);
+    }
+  </style>
+</head>
+<body data-theme="light">
+  
+  <!-- THEME TOGGLE -->
+  <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></div>
+  
+  <!-- Floating Particles -->
+  <div id="particles"></div>
+  
+  <!-- MAIN CONTAINER -->
+  <div class="container-wrapper animate-fade-in">
+    
+    <!-- HEADER -->
+    <div class="text-center mb-10">
+      <div class="flex justify-center items-center gap-4 mb-6">
+        <img src="piemr-logo.jpg" class="w-24 h-24 rounded-full border-4 border-[#ffaa23] shadow-2xl" style="animation: pulse 2s ease infinite;" alt="PIEMR Logo"/>
+        <h1 class="text-6xl md:text-7xl font-black text-white drop-shadow-2xl glow-text" style="color: #ffaa23;">Campus Canteen</h1>
+      </div>
+      <p class="text-2xl md:text-3xl text-white font-bold drop-shadow-lg mb-3">✨ Welcome Back!</p>
+      <p class="text-lg text-white opacity-90 drop-shadow-md">Login to access your dashboard</p>
+    </div>
+    
+    <!-- LOGIN FORM -->
+    <div class="glass-card mx-auto p-8 md:p-12 mb-10 max-w-xl">
+      <h2 class="text-3xl md:text-4xl font-black text-center mb-8 glow-text" style="color: var(--accent);">🔐 Secure Login</h2>
+      
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-6">
+        
+        <!-- SELECT ROLE -->
+        <div>
+          <label class="block text-base font-black mb-4 text-center" style="font-size: 1.1rem;">Select Your Role *</label>
+          <div class="grid grid-cols-2 gap-4" id="roleSelector">
+            
+            <div class="role-card rounded-2xl p-6 text-center" onclick="selectRole('student')">
+              <div class="role-icon">🎓</div>
+              <p class="font-bold text-base">Student</p>
+            </div>
+            
+            <div class="role-card rounded-2xl p-6 text-center" onclick="selectRole('admin')">
+              <div class="role-icon">👨‍💼</div>
+              <p class="font-bold text-base">Admin</p>
+            </div>
+            
+            <div class="role-card rounded-2xl p-6 text-center" onclick="selectRole('kitchen')">
+              <div class="role-icon">👨‍🍳</div>
+              <p class="font-bold text-base">Kitchen</p>
+            </div>
+            
+            <div class="role-card rounded-2xl p-6 text-center" onclick="selectRole('cashier')">
+              <div class="role-icon">💰</div>
+              <p class="font-bold text-base">Cashier</p>
+            </div>
+            
+          </div>
+          <input type="hidden" id="selectedRole" required>
+        </div>
+        
+        <!-- USERNAME -->
+        <div>
+          <label class="block text-sm font-bold mb-3">👤 Username *</label>
+          <input type="text" id="username" required placeholder="Enter your username" 
+            class="w-full px-5 py-4 rounded-xl focus:ring-4 focus:ring-[#ffaa23] focus:border-transparent transition text-lg font-semibold">
+        </div>
+        
+        <!-- PASSWORD -->
+        <div>
+          <label class="block text-sm font-bold mb-3">🔑 Password *</label>
+          <input type="password" id="password" required placeholder="Enter your password" 
+            class="w-full px-5 py-4 rounded-xl focus:ring-4 focus:ring-[#ffaa23] focus:border-transparent transition text-lg font-semibold">
+        </div>
+        
+        <!-- ERROR MESSAGE -->
+        <div id="errorMsg" class="hidden text-center font-bold p-4 rounded-xl"></div>
+        
+        <!-- SUBMIT BUTTON -->
+        <button type="submit" id="loginBtn" class="btn-login w-full text-white py-5 rounded-xl font-black text-xl transition shadow-2xl">
+          <span id="btnText">🚀 Login Now</span>
+          <span id="btnSpinner" class="hidden spinner inline-block ml-3"></span>
+        </button>
+        
+      </form>
+      
+      <!-- DEMO CREDENTIALS INFO -->
+      <div class="mt-8 p-6 rounded-2xl demo-badge">
+        <p class="text-base font-black mb-4 text-center" style="color: #3b82f6;">📝 Demo Credentials</p>
+        <div class="space-y-2 text-center">
+          <p class="text-sm font-bold">
+            👤 <code class="bg-white px-3 py-1 rounded-lg font-mono text-base">admin</code> 
+            | 
+            🔑 <code class="bg-white px-3 py-1 rounded-lg font-mono text-base">admin</code>
+          </p>
+          <p class="text-xs font-semibold" style="color: var(--text-secondary);">💡 Or use any role name as both username & password</p>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- INFO BADGES -->
+    <div class="flex justify-center gap-4 md:gap-6 flex-wrap text-white font-bold text-sm mb-10">
+      <div class="info-badge px-6 py-3 rounded-full">🔒 Secure Access</div>
+      <div class="info-badge px-6 py-3 rounded-full">⚡ Real-time Sync</div>
+      <div class="info-badge px-6 py-3 rounded-full">📊 Live Analytics</div>
+    </div>
+    
+    <!-- FOOTER -->
+    <div class="text-center text-white pb-8">
+      <p class="text-base font-bold drop-shadow-lg mb-2">&copy; 2025 Campus Canteen • PIEMR, Indore</p>
+      <p class="text-sm drop-shadow-lg opacity-90">Made with ❤️ for Students | Powered by Innovation</p>
+    </div>
+    
+  </div>
+
+  <!-- AUDIO -->
+  <audio id="clickSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYJGGi88OScTgwOUK" preload="auto"></audio>
+
+<script>
+  // Premium Smooth Particles
+  function createParticles() {
+    const container = document.getElementById('particles');
+    for(let i = 0; i < 25; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.width = particle.style.height = (Math.random() * 6 + 3) + 'px';
+      particle.style.animationDuration = (Math.random() * 15 + 12) + 's';
+      particle.style.animationDelay = (Math.random() * 10) + 's';
+      container.appendChild(particle);
+    }
+  }
+  createParticles();
+
+  // Theme Toggle
+  function toggleTheme() {
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', newTheme);
+    toggle.classList.toggle('active');
+    localStorage.setItem('theme', newTheme);
+    playSound();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    if(savedTheme === 'dark') {
+      document.getElementById('themeToggle').classList.add('active');
+    }
+  });
+
+  // Sound effect
+  function playSound() {
+    const audio = document.getElementById('clickSound');
+    audio.currentTime = 0;
+    audio.play().catch(e => {});
+  }
+
+  // Handle Role Selection
+  let currentRole = '';
+  function selectRole(role) {
+    currentRole = role;
+    document.getElementById('selectedRole').value = role;
+    const cards = document.querySelectorAll('.role-card');
+    cards.forEach(card => card.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    playSound();
+  }
+
+  // Login Handler
+  function handleLogin(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const role = document.getElementById('selectedRole').value;
+    const errorMsg = document.getElementById('errorMsg');
+    const loginForm = document.getElementById('loginForm');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    errorMsg.classList.add('hidden');
+
+    if(!role) {
+      showError('❌ Please select a role first!');
+      loginForm.classList.add('shake');
+      setTimeout(() => loginForm.classList.remove('shake'), 600);
+      return;
+    }
+
+    const validCredentials = {
+      'student': {username: 'student', password: 'student'},
+      'admin': {username: 'admin', password: 'admin'},
+      'kitchen': {username: 'kitchen', password: 'kitchen'},
+      'cashier': {username: 'cashier', password: 'cashier'}
+    };
+
+    const isValid = 
+      (validCredentials[role].username === username && validCredentials[role].password === password) ||
+      (username === role && password === role) ||
+      (username === 'admin' && password === 'admin');
+
+    if(isValid) {
+      btnText.textContent = 'Logging in...';
+      btnSpinner.classList.remove('hidden');
+
+      localStorage.setItem("userRole", role);
+      localStorage.setItem("isLoggedIn", "true");
+
+      playSound();
+
+      setTimeout(() => {
+        showSuccess('✅ Login Successful! Redirecting...');
+        setTimeout(() => {
+          if(role === 'student') window.location.href = "menu.html";
+          else if(role === 'admin') window.location.href = "admin.html";
+          else if(role === 'kitchen') window.location.href = "kitchen.html";
+          else if(role === 'cashier') window.location.href = "cashier.html";
+        }, 1000);
+      }, 1000);
+
+    } else {
+      showError('❌ Invalid username or password!');
+      loginForm.classList.add('shake');
+      setTimeout(() => loginForm.classList.remove('shake'), 600);
+      playSound();
+      btnText.textContent = '🚀 Login Now';
+      btnSpinner.classList.add('hidden');
+    }
+  }
+
+  function showError(msg) {
+    const errorMsg = document.getElementById('errorMsg');
+    errorMsg.textContent = msg;
+    errorMsg.style.background = 'rgba(239, 68, 68, 0.2)';
+    errorMsg.style.color = '#dc2626';
+    errorMsg.style.border = '2px solid rgba(239, 68, 68, 0.5)';
+    errorMsg.classList.remove('hidden');
+  }
+
+  function showSuccess(msg) {
+    const errorMsg = document.getElementById('errorMsg');
+    errorMsg.textContent = msg;
+    errorMsg.style.background = 'rgba(34, 197, 94, 0.2)';
+    errorMsg.style.color = '#16a34a';
+    errorMsg.style.border = '2px solid rgba(34, 197, 94, 0.5)';
+    errorMsg.classList.remove('hidden');
+  }
+
+  window.onload = function() {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userRole");
+  }
+</script>
+</body>
+</html>

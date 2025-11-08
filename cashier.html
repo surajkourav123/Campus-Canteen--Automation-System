@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cashier Desk | Campus Canteen</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-primary: #eff6ff;
+      --bg-card: #ffffff;
+      --text-primary: #1e3a8a;
+      --text-secondary: #6b7280;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: #dbeafe;
+    }
+    
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-card: #2d2d2d;
+      --text-primary: #dbeafe;
+      --text-secondary: #94a3b8;
+      --accent: #60a5fa;
+      --accent-hover: #3b82f6;
+      --accent-light: #1e3a8a;
+    }
+    
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .side-btn {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-primary);
+    }
+    .side-btn:focus, .side-btn.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      transform: translateX(5px);
+    }
+    .side-btn:hover {
+      background: var(--accent-light);
+      transform: translateX(3px);
+    }
+    .highlight-tab {
+      background: var(--accent-light);
+      color: var(--accent);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+    
+    .pop-anim {animation: popalert 1s;}
+    @keyframes popalert { 
+      10%{transform:scale(1.10);} 
+      40%{transform:scale(0.98);} 
+      100%{transform:scale(1);} 
+    }
+    
+    .stat-card {
+      box-shadow: 0 3px 18px rgba(59, 130, 246, 0.1);
+      transition: all 0.3s ease;
+      background: var(--bg-card);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+    }
+    
+    /* Settings Button in Sidebar */
+    .settings-btn-sidebar {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-primary);
+    }
+    .settings-btn-sidebar:hover {
+      background: rgba(102, 126, 234, 0.1);
+      transform: translateX(3px);
+    }
+    
+    /* Settings Panel */
+    .settings-panel {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: 420px;
+      background: var(--bg-card);
+      box-shadow: -20px 0 60px rgba(0, 0, 0, 0.3);
+      transform: translateX(100%);
+      transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 100000;
+      overflow-y: auto;
+      backdrop-filter: blur(20px);
+    }
+    .settings-panel.active { 
+      transform: translateX(0);
+    }
+    
+    [data-theme="dark"] .settings-panel {
+      background: rgba(45, 45, 45, 0.98);
+      backdrop-filter: blur(30px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .setting-option {
+      padding: 1.25rem 1.5rem;
+      margin: 0.5rem 1rem;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(59, 130, 246, 0.03);
+      border: 1px solid rgba(59, 130, 246, 0.08);
+    }
+    .setting-option:hover {
+      background: rgba(59, 130, 246, 0.08);
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+    }
+    .setting-option .icon {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Toggle Switch */
+    .toggle-switch {
+      width: 50px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .toggle-switch.active { background: #3b82f6; }
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: 0.3s;
+    }
+    .toggle-switch.active::before { left: 28px; }
+    
+    [data-theme="dark"] aside {
+      background: #2d2d2d;
+      border-color: #3d3d3d;
+    }
+    
+    [data-theme="dark"] header {
+      background: #2d2d2d;
+      border-bottom: 1px solid #3d3d3d;
+    }
+    
+    [data-theme="dark"] .stat-card {
+      background: #2d2d2d;
+      border-color: #3d3d3d;
+    }
+    
+    [data-theme="dark"] section {
+      background: #2d2d2d !important;
+      color: #dbeafe;
+    }
+    
+    [data-theme="dark"] table {
+      color: #dbeafe;
+    }
+    
+    [data-theme="dark"] input {
+      background: #3d3d3d;
+      color: #dbeafe;
+      border-color: #4d4d4d;
+    }
+    
+    /* Search Bar Enhancement */
+    .search-bar {
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+    }
+    
+    .search-bar:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+    }
+    
+    [data-theme="dark"] .search-bar {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Button Enhancements */
+    .btn-action {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Table Row Hover */
+    tbody tr {
+      transition: all 0.2s ease;
+    }
+    
+    tbody tr:hover {
+      background: rgba(59, 130, 246, 0.05);
+      transform: scale(1.01);
+    }
+    
+    /* Amount Animation */
+    @keyframes countUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .amount-animate {
+      animation: countUp 0.5s ease;
+    }
+  </style>
+</head>
+<body data-theme="light" class="min-h-screen flex">
+  
+  <!-- Notification -->
+  <div id="notif" class="hidden fixed top-8 right-8 bg-white text-blue-500 font-bold px-8 py-4 rounded-lg shadow-xl border text-lg z-50"></div>
+  
+  <!-- SIDEBAR -->
+  <aside class="bg-white border-r w-[220px] min-h-screen flex flex-col py-8 px-3 shadow-xl">
+    <div class="flex items-center gap-3 mb-10">
+      <img src="piemr-logo.jpg" class="w-12 h-12 rounded-full border-2 border-[#38bdf8] bg-white" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22%3E%3Ccircle cx=%2224%22 cy=%2224%22 r=%2224%22 fill=%22%2338bdf8%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2220%22 font-weight=%22bold%22%3EC%3C/text%3E%3C/svg%3E'"/>
+      <div>
+        <span class="block text-xl font-black text-[#38bdf8]">CASHIER</span>
+        <span class="block text-xs text-gray-500 font-semibold">Campus Canteen</span>
+      </div>
+    </div>
+    <nav id="sideNav" class="flex-1 flex flex-col gap-3">
+      <button onclick="showTab('orders')" class="side-btn highlight-tab flex gap-3 items-center px-4 py-3 rounded-xl font-bold text-base transition">
+        🧾 Orders
+      </button>
+      <button onclick="showTab('paid')" class="side-btn flex gap-3 items-center px-4 py-3 rounded-xl text-base font-semibold transition">
+        💸 Paid Orders
+      </button>
+      <button onclick="showTab('stats')" class="side-btn flex gap-3 items-center px-4 py-3 rounded-xl text-base font-semibold transition">
+        📊 Sales Stats
+      </button>
+      <button onclick="toggleSettings()" class="settings-btn-sidebar flex gap-3 items-center px-4 py-3 rounded-xl text-base font-semibold transition mt-4">
+        ⚙️ Settings
+      </button>
+      <button onclick="logoutFn()" class="side-btn flex gap-3 items-center px-4 py-3 rounded-xl font-semibold text-red-600 hover:bg-red-50 transition mt-auto">
+        🚪 Logout
+      </button>
+    </nav>
+  </aside>
+  
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 min-h-screen flex flex-col">
+    
+    <!-- HEADER -->
+    <header class="w-full flex justify-between items-center px-10 py-8 bg-white shadow-sm">
+      <div class="text-xl font-bold tracking-wide">
+        Welcome, <span class="text-blue-600">Cashier</span> 💰
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="text-sm text-gray-500 font-semibold">PIEMR Canteen</span>
+        <img src="piemr-logo.jpg" class="w-10 h-10 rounded-full border-2 border-blue-400 bg-white" alt="PIEMR Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%2220%22 fill=%22%233b82f6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2218%22 font-weight=%22bold%22%3EC%3C/text%3E%3C/svg%3E'"/>
+      </div>
+    </header>
+    
+    <!-- STATS CARDS -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-7 max-w-5xl mx-auto py-8 px-3 w-full">
+      <div class="stat-card text-blue-700 p-7 rounded-2xl flex flex-col gap-2 items-start">
+        <div class="font-black text-3xl" id="totalUnpaid">0</div>
+        <div class="text-base font-semibold">Unpaid Orders</div>
+      </div>
+      <div class="stat-card text-green-600 p-7 rounded-2xl flex flex-col gap-2 items-start">
+        <div class="font-black text-3xl" id="totalPaid">0</div>
+        <div class="text-base font-semibold">Paid Orders</div>
+      </div>
+      <div class="stat-card text-emerald-600 p-7 rounded-2xl flex flex-col gap-2 items-start">
+        <div class="font-black text-3xl amount-animate" id="todayAmount">₹0</div>
+        <div class="text-base font-semibold">Today Sales</div>
+      </div>
+    </section>
+    
+    <!-- ORDERS TAB -->
+    <section id="ordersTab" class="max-w-5xl mx-auto w-full rounded-2xl bg-white shadow-xl p-8 mb-9 hidden">
+      <div class="flex justify-between items-center mb-6">
+        <div class="text-2xl font-black text-blue-700">🧾 Unpaid & Ready Orders</div>
+        <input type="text" id="ordersSearch" placeholder="🔍 Search orders..." 
+          class="search-bar px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64">
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-gray-500 border-b-2">
+              <th class="pb-3">Order ID</th>
+              <th class="pb-3">Items</th>
+              <th class="pb-3">Total</th>
+              <th class="pb-3">Status</th>
+              <th class="pb-3">Action</th>
+            </tr>
+          </thead>
+          <tbody id="cashierTableBody"></tbody>
+        </table>
+      </div>
+      <div id="noCashierOrders" class="mt-8 text-center text-gray-400 hidden">
+        <div class="text-6xl mb-3">💵</div>
+        <div class="text-xl font-semibold">No unpaid orders</div>
+      </div>
+    </section>
+    
+    <!-- PAID TAB -->
+    <section id="paidTab" class="max-w-5xl mx-auto w-full rounded-2xl bg-white shadow-xl p-8 mb-9 hidden">
+      <div class="flex justify-between items-center mb-6">
+        <div class="text-2xl font-black text-emerald-600">💸 Paid Orders</div>
+        <input type="text" id="paidSearch" placeholder="🔍 Search orders..." 
+          class="search-bar px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64">
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="text-gray-500 border-b-2">
+              <th class="pb-3">Order ID</th>
+              <th class="pb-3">Items</th>
+              <th class="pb-3">Total</th>
+              <th class="pb-3">Status</th>
+            </tr>
+          </thead>
+          <tbody id="paidTableBody"></tbody>
+        </table>
+      </div>
+      <div id="noPaid" class="mt-8 text-center text-gray-400 hidden">
+        <div class="text-6xl mb-3">🎉</div>
+        <div class="text-xl font-semibold">No paid orders yet</div>
+      </div>
+    </section>
+    
+    <!-- STATS TAB -->
+    <section id="statsTab" class="max-w-5xl mx-auto w-full rounded-2xl bg-white shadow-xl p-8 mb-9 hidden">
+      <div class="text-3xl font-black mb-8 text-[#0284c7]">📊 Payment Statistics</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="p-6 rounded-xl bg-blue-50 border-2 border-blue-200">
+          <div class="text-sm font-semibold text-gray-600 mb-2">Total Paid Orders</div>
+          <div class="text-4xl font-black text-blue-600" id="totalPaidStat">0</div>
+        </div>
+        <div class="p-6 rounded-xl bg-emerald-50 border-2 border-emerald-200">
+          <div class="text-sm font-semibold text-gray-600 mb-2">Total Amount Collected</div>
+          <div class="text-4xl font-black text-emerald-600">₹<span id="paidAmountStat">0</span></div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- FOOTER -->
+    <footer class="bg-blue-600 text-white text-center text-base py-6 mt-auto rounded-t-3xl shadow-xl">
+      <div class="flex items-center justify-center gap-3">
+        <img src="piemr-logo.jpg" class="w-8 h-8 rounded-full border-2 border-white shadow bg-white" alt="PIEMR Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%233b82f6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22 font-size=%2214%22 font-weight=%22bold%22%3EC%3C/text%3E%3C/svg%3E'"/>
+        <span>&copy; 2025 Campus Canteen • PIEMR, Indore</span>
+      </div>
+    </footer>
+  </main>
+  
+  <!-- Settings Panel -->
+  <div id="settingsPanel" class="settings-panel">
+    <div class="bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white p-8 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"></div>
+      <div class="relative z-10">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-3xl font-black tracking-tight">⚙️ Settings</h2>
+          <button onclick="toggleSettings()" class="text-white font-bold text-3xl hover:rotate-90 hover:scale-110 transition-all duration-300 active:scale-95">✖</button>
+        </div>
+        <p class="text-purple-100 text-sm font-medium">Customize your experience</p>
+      </div>
+    </div>
+    
+    <div class="p-4 space-y-3">
+      <!-- Dark Mode -->
+      <div class="setting-option" onclick="toggleTheme()">
+        <div class="icon bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">🌓</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Dark Mode</div>
+          <div class="text-sm text-gray-500">Night theme</div>
+        </div>
+        <div class="toggle-switch" id="darkToggle"></div>
+      </div>
+      
+      <!-- Notifications -->
+      <div class="setting-option" onclick="toggleNotifications()">
+        <div class="icon bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">🔔</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Notifications</div>
+          <div class="text-sm text-gray-500">Payment alerts</div>
+        </div>
+        <div class="toggle-switch active" id="notifToggle"></div>
+      </div>
+      
+      <!-- Sound Effects -->
+      <div class="setting-option" onclick="toggleSound()">
+        <div class="icon bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg">🔊</div>
+        <div class="flex-1">
+          <div class="font-bold text-lg">Sound Effects</div>
+          <div class="text-sm text-gray-500">Audio alerts</div>
+        </div>
+        <div class="toggle-switch active" id="soundToggle"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- AUDIO -->
+  <audio id="notifSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYJGGi88OScTgwOUK" preload="auto"></audio>
+  
+  <script>
+    // Session Guard
+    if(!localStorage.getItem("isLoggedIn") || localStorage.getItem("userRole")!=="cashier") 
+      window.location.href="index.html";
+    
+    function logoutFn(){
+      localStorage.clear();
+      window.location.href="index.html";
+    }
+    
+    let soundEnabled = true;
+    let notificationsEnabled = true;
+    
+    function toggleSettings() {
+      document.getElementById('settingsPanel').classList.toggle('active');
+    }
+    
+    function toggleTheme() {
+      const body = document.body;
+      const toggle = document.getElementById('darkToggle');
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      body.setAttribute('data-theme', newTheme);
+      toggle.classList.toggle('active');
+      localStorage.setItem('cashierTheme', newTheme);
+      playSound();
+    }
+    
+    function toggleNotifications() {
+      notificationsEnabled = !notificationsEnabled;
+      document.getElementById('notifToggle').classList.toggle('active');
+      playSound();
+    }
+    
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundToggle').classList.toggle('active');
+    }
+    
+    // Load saved theme
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('cashierTheme') || 'light';
+      document.body.setAttribute('data-theme', savedTheme);
+      if(savedTheme === 'dark') {
+        document.getElementById('darkToggle').classList.add('active');
+      }
+    });
+    
+    // Sound Effect
+    function playSound() {
+      if(!soundEnabled) return;
+      const audio = document.getElementById('notifSound');
+      audio.currentTime = 0;
+      audio.play().catch(e => console.log('Audio blocked'));
+    }
+    
+    let orders=[];
+    
+    function fetchOrders(){
+      orders = JSON.parse(localStorage.getItem('orders')) || [];
+    }
+    
+    function showTab(tab){
+      document.getElementById('ordersTab').classList.add('hidden');
+      document.getElementById('paidTab').classList.add('hidden');
+      document.getElementById('statsTab').classList.add('hidden');
+      document.getElementById(tab+'Tab').classList.remove('hidden');
+      
+      document.querySelectorAll('#sideNav button').forEach(btn=>btn.classList.remove('highlight-tab'));
+      if(tab==="orders") document.querySelectorAll('#sideNav button')[0].classList.add('highlight-tab');
+      if(tab==="paid") document.querySelectorAll('#sideNav button')[1].classList.add('highlight-tab');
+      if(tab==="stats") document.querySelectorAll('#sideNav button')[2].classList.add('highlight-tab');
+      
+      if(tab==="orders") renderUnpaid();
+      if(tab==="paid") renderPaid();
+      if(tab==="stats") renderStats();
+    }
+    
+    // Search Functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('ordersSearch')?.addEventListener('input', (e) => renderUnpaid(e.target.value));
+      document.getElementById('paidSearch')?.addEventListener('input', (e) => renderPaid(e.target.value));
+    });
+    
+    function renderUnpaid(searchTerm=""){
+      fetchOrders();
+      let unpaid = 0;
+      const tbody=document.getElementById("cashierTableBody");
+      tbody.innerHTML='';
+      
+      let filteredOrders = orders.filter(order => {
+        if(order.status==="Paid") return false;
+        if(searchTerm) {
+          return order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                 (order.items && order.items.join(", ").toLowerCase().includes(searchTerm.toLowerCase()));
+        }
+        return true;
+      });
+      
+      filteredOrders.forEach((order,idx)=>{
+        let realIdx = orders.findIndex(o => o.id === order.id);
+        unpaid++;
+        tbody.innerHTML+=`
+        <tr class="border-b">
+          <td class="py-4 font-bold text-blue-700">${order.id}</td>
+          <td class="py-4">${order.items?order.items.join(", "):"--"}</td>
+          <td class="py-4 font-semibold text-green-600">${order.total || "₹0"}</td>
+          <td class="py-4 font-semibold">${order.status||"Preparing"}</td>
+          <td class="py-4">
+            <button onclick="markPaid(${realIdx})" class="btn-action bg-blue-500 text-white py-2 px-4 rounded-lg font-bold hover:bg-blue-600 transition">
+              💰 Mark Paid
+            </button>
+          </td>
+        </tr>`;
+      });
+      
+      document.getElementById("noCashierOrders").classList.toggle("hidden", filteredOrders.length!==0);
+      document.getElementById("totalUnpaid").textContent = orders.filter(o=>o.status!=="Paid").length;
+    }
+    
+    function markPaid(idx){
+      orders[idx].status="Paid";
+      localStorage.setItem("orders",JSON.stringify(orders));
+      popNotif("💰 Payment received! Order marked as Paid");
+      playSound();
+      renderUnpaid();
+      renderPaid();
+      renderStats();
+    }
+    
+    function renderPaid(searchTerm=""){
+      fetchOrders();
+      let paidCount=0;
+      const tbody=document.getElementById("paidTableBody");
+      tbody.innerHTML='';
+      
+      let filteredOrders = orders.filter(order => {
+        if(order.status!=="Paid") return false;
+        if(searchTerm) {
+          return order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                 (order.items && order.items.join(", ").toLowerCase().includes(searchTerm.toLowerCase()));
+        }
+        return true;
+      });
+      
+      filteredOrders.forEach(order=>{
+        paidCount++;
+        tbody.innerHTML+=`
+        <tr class="border-b">
+          <td class="py-4 font-bold text-green-700">${order.id}</td>
+          <td class="py-4">${order.items?order.items.join(", "):"--"}</td>
+          <td class="py-4 font-semibold text-green-600">${order.total || "₹0"}</td>
+          <td class="py-4"><span class="bg-green-100 text-green-700 px-3 py-1 rounded-lg font-bold">${order.status}</span></td>
+        </tr>`;
+      });
+      
+      document.getElementById("noPaid").classList.toggle("hidden", filteredOrders.length!==0);
+      document.getElementById("totalPaid").textContent=orders.filter(o=>o.status==="Paid").length;
+    }
+    
+    function renderStats(){
+      fetchOrders();
+      let paid=orders.filter(o=>o.status==="Paid");
+      document.getElementById("totalPaidStat").textContent = paid.length;
+      
+      let total=paid.reduce((s,o)=> s+(parseInt(o.total?.replace(/[^\d]/g,''))||0),0);
+      document.getElementById("paidAmountStat").textContent = total;
+      document.getElementById("todayAmount").textContent = "₹"+total;
+    }
+    
+    function popNotif(msg){
+      const n=document.getElementById('notif');
+      n.textContent=msg;
+      n.classList.remove("hidden");
+      n.classList.add("pop-anim");
+      setTimeout(()=>{
+        n.classList.add("hidden");
+        n.classList.remove("pop-anim");
+      },1500);
+    }
+    
+    window.onload=function(){
+      showTab("orders");
+    }
+    
+    // Auto-refresh every 3 seconds
+    setInterval(() => {
+      let activeBtn = document.querySelector("#sideNav button.highlight-tab");
+      if(activeBtn) {
+        let tab = activeBtn.textContent.includes("Orders") && !activeBtn.textContent.includes("Paid") ? "orders" : 
+                  activeBtn.textContent.includes("Paid") ? "paid" : "stats";
+        if(tab==="orders") renderUnpaid(document.getElementById('ordersSearch')?.value || "");
+        if(tab==="paid") renderPaid(document.getElementById('paidSearch')?.value || "");
+        if(tab==="stats") renderStats();
+      }
+    }, 3000);
+  </script>
+</body>
+</html>
