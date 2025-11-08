@@ -1,4 +1,7 @@
 # Campus-Canteen--Automation-System 
+## 🚀 Live Demo
+
+[Campus Canteen Automation System – Click to Open!](https://surajkourav123.github.io/Campus-Canteen--Automation-System/)
 
 ## 🔥 Features
 
