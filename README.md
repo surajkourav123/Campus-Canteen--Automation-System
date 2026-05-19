@@ -1,3 +1,4 @@
+
 # 🍽️ Campus Canteen Automation System
 
 A complete **Full-Stack Campus Canteen Automation System** developed using **Node.js, Express.js, MongoDB, HTML, CSS, and JavaScript**.
@@ -91,3 +92,152 @@ Campus-Canteen--Automation-System/
 ├── Canteen frontend/
 │
 └── README.md
+````
+
+---
+
+# ⚙️ Installation & Setup
+
+## 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/surajkourav123/Campus-Canteen--Automation-System.git
+```
+
+---
+
+## 2️⃣ Navigate to Project Folder
+
+```bash
+cd Campus-Canteen--Automation-System
+```
+
+---
+
+## 3️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 4️⃣ Start the Server
+
+```bash
+npm start
+```
+
+OR
+
+```bash
+node server.js
+```
+
+---
+
+# 🌐 Local Server
+
+After running the server:
+
+```bash
+http://localhost:3000
+```
+
+---
+
+# 📸 Modules Included
+
+✅ Authentication System
+✅ Admin Panel
+✅ Kitchen Dashboard
+✅ Cashier Dashboard
+✅ Menu Management
+✅ Food Upload System
+✅ QR Generator
+✅ Order Management
+✅ Stock Management
+
+---
+
+# 🔐 Authentication
+
+The system supports:
+
+* User Registration
+* Login Authentication
+* Session Handling
+
+---
+
+# 📦 Dependencies
+
+Some major dependencies used:
+
+```json
+Express
+MongoDB
+Multer
+QRCode
+Body-Parser
+Nodemon
+```
+
+---
+
+# 🧠 Future Enhancements
+
+* Online Payment Gateway
+* Real-Time Notifications
+* Mobile Application
+* AI-Based Food Recommendations
+* Analytics Dashboard
+* Cloud Deployment
+
+---
+
+# 💻 Developed By
+
+## 👨‍💻 Suraj Kourav
+
+### GitHub Profile
+
+[https://github.com/surajkourav123](https://github.com/surajkourav123)
+
+---
+
+# ⭐ Repository
+
+## GitHub Repository Link
+
+[https://github.com/surajkourav123/Campus-Canteen--Automation-System](https://github.com/surajkourav123/Campus-Canteen--Automation-System)
+
+---
+
+# 📄 License
+
+This project is created for educational and learning purposes only.
+
+---
+
+# 🙌 Support
+
+If you like this project:
+
+⭐ Star the repository
+🍴 Fork the project
+📢 Share with others
+
+---
+
+# 📧 Contact
+
+For any queries or suggestions:
+
+GitHub:
+[https://github.com/surajkourav123](https://github.com/surajkourav123)
+
+```
+```
+
+
